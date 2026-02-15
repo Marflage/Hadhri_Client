@@ -337,4 +337,12 @@ class _AccountFormState extends State<AccountForm> {
 
     return null;
   }
+
+  @override
+  void dispose() {
+    _classScheduleController.dispose();
+    _classSessionController.dispose();
+    _semesterController.dispose();
+    super.dispose();
+  }
 }
