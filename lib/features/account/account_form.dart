@@ -246,8 +246,7 @@ class _AccountFormState extends State<AccountForm> {
   void _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // TODO: How to inject AccountFormService here?
-      // TODO: Create an object to send in the API request.
+
       final request = SignUpRequest(
         firstName: _firstName,
         lastName: _lastName,
@@ -261,9 +260,13 @@ class _AccountFormState extends State<AccountForm> {
       );
       // TODO: Send a request to the backend.
 
-      await widget.service.register(request);
+      final response = await widget.service.register(request);
 
-      var t = 3;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.message)));
+      }
+
+      // TODO: Navigate to to the home screen.
     }
   }
 
