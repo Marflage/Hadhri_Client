@@ -1,6 +1,6 @@
 class BaseViewModel<T> {
   String message;
-  final T? data;
+  T? data;
 
   BaseViewModel({
     required this.message,

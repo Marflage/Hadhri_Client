@@ -14,7 +14,7 @@ class AccountForm extends StatefulWidget {
     required this.service,
   });
 
-  final GetCoursePlans getCoursePlans;
+  final GetCoursePlansResponse getCoursePlans;
   final AccountFormService service;
 
   @override
@@ -260,10 +260,10 @@ class _AccountFormState extends State<AccountForm> {
       );
       // TODO: Send a request to the backend.
 
-      final response = await widget.service.register(request);
+      final vm = await widget.service.register(request);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.message)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
       }
 
       // TODO: Navigate to to the home screen.
