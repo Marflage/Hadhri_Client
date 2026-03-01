@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadhri/domain/dtos/course.dart';
 import 'package:hadhri/infrastructure/responses/get_course_plans.dart';
-import 'package:hadhri/infrastructure/services/account_form_service.dart';
+import 'package:hadhri/infrastructure/services/account_service.dart';
 
 import '../../domain/dtos/class_schedule.dart';
 import '../../domain/dtos/class_session.dart';
@@ -15,7 +15,7 @@ class SignUpForm extends StatefulWidget {
   });
 
   final GetCoursePlansResponse getCoursePlans;
-  final AccountFormService service;
+  final AccountService service;
 
   @override
   State<SignUpForm> createState() => _SignUpFormState();

@@ -6,7 +6,7 @@ import 'package:hadhri/infrastructure/requests/sign_up_request.dart';
 import 'package:hadhri/infrastructure/responses/api_response.dart';
 import 'package:http/http.dart';
 
-class AccountFormService {
+class AccountService {
   // TODO: Store this in a config file.
   static const String baseUrl = 'http://localhost:8080/';
 

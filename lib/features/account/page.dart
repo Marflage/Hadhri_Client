@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadhri/features/account/sign_up_form.dart';
 import 'package:hadhri/infrastructure/responses/get_course_plans.dart';
-import 'package:hadhri/infrastructure/services/account_form_service.dart';
+import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:pullex/pullex.dart';
 
 import '../../infrastructure/services/course_plan_service.dart';
@@ -44,7 +44,7 @@ class _AccountPageState extends State<AccountPage> {
             : _isDataAvailable
             ? SignUpForm(
                 getCoursePlans: _getCoursePlans,
-                service: AccountFormService(),
+                service: AccountService(),
               )
             : Center(
                 // child: Text('Pull down to refresh.'),
