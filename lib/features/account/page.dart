@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hadhri/features/account/account_form.dart';
+import 'package:hadhri/features/account/sign_up_form.dart';
 import 'package:hadhri/infrastructure/responses/get_course_plans.dart';
 import 'package:hadhri/infrastructure/services/account_form_service.dart';
 import 'package:pullex/pullex.dart';
@@ -42,7 +42,7 @@ class _AccountPageState extends State<AccountPage> {
         child: _isLoading
             ? Center(child: const CircularProgressIndicator.adaptive())
             : _isDataAvailable
-            ? AccountForm(
+            ? SignUpForm(
                 getCoursePlans: _getCoursePlans,
                 service: AccountFormService(),
               )
@@ -55,6 +55,7 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
+  // TODO: Move this into a separate file.
   Future _onRefresh() async {
     final vm = await widget.service.fetchCoursePlansAsync();
 

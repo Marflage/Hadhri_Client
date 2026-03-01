@@ -7,8 +7,8 @@ import '../../domain/dtos/class_schedule.dart';
 import '../../domain/dtos/class_session.dart';
 import '../../infrastructure/requests/sign_up_request.dart';
 
-class AccountForm extends StatefulWidget {
-  AccountForm({
+class SignUpForm extends StatefulWidget {
+  SignUpForm({
     super.key,
     required this.getCoursePlans,
     required this.service,
@@ -18,10 +18,10 @@ class AccountForm extends StatefulWidget {
   final AccountFormService service;
 
   @override
-  State<AccountForm> createState() => _AccountFormState();
+  State<SignUpForm> createState() => _SignUpFormState();
 }
 
-class _AccountFormState extends State<AccountForm> {
+class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
