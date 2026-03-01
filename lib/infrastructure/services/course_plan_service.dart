@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/responses/api_response.dart';
@@ -9,13 +10,13 @@ class CoursePlanService {
   // TODO: Store this in a config file for maintainability and reusability.
   static const String _baseUrl = 'http://localhost:8080/';
 
-  Future<BaseViewModel> fetchCoursePlansAsync() async {
+  Future<BaseViewModel<GetCoursePlansResponse>> fetchCoursePlansAsync() async {
     // TODO: Create a constant for this URL.
     const url = '${_baseUrl}course-plans';
     // const url = 'http://10.0.2.2:8080/course-plans';
     final uri = Uri.parse(url);
 
-    final vm = BaseViewModel(message: '');
+    final vm = BaseViewModel<GetCoursePlansResponse>(message: '');
 
     try {
       final rawResponse = await get(uri);
@@ -40,6 +41,11 @@ class CoursePlanService {
 
       vm.data = response.data;
     } catch (e) {
+      if (e is SocketException) {
+        vm.message = "Connection error. Please check your internet connection.";
+        return vm;
+      }
+
       vm.message = e.toString();
     }
 
