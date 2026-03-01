@@ -102,7 +102,7 @@ class _AccountFormState extends State<AccountForm> {
           ),
           ElevatedButton(
             onPressed: _onSubmit,
-            child: Text('Register'),
+            child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Register'),
           ),
         ],
       ),
@@ -117,9 +117,10 @@ class _AccountFormState extends State<AccountForm> {
 
   // UI states
   List<DropdownMenuEntry<ClassSchedule>> _classScheduleDropdownEntries = [];
-
   List<DropdownMenuEntry<ClassSession>> _classSessionDropdownEntries = [];
   List<DropdownMenuEntry<int>> _semesterDropdownEntries = [];
+
+  bool _isLoading = false;
 
   // Non-UI
   late String _firstName;
@@ -247,6 +248,8 @@ class _AccountFormState extends State<AccountForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      setState(() => _isLoading = true);
+
       final request = SignUpRequest(
         firstName: _firstName,
         lastName: _lastName,
@@ -265,6 +268,8 @@ class _AccountFormState extends State<AccountForm> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
       }
+
+      setState(() => _isLoading = false);
 
       // TODO: Navigate to to the home screen.
     }
