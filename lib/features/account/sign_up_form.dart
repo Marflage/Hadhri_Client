@@ -263,7 +263,7 @@ class _SignUpFormState extends State<SignUpForm> {
       );
       // TODO: Send a request to the backend.
 
-      final vm = await widget.service.register(request);
+      final vm = await widget.service.signUp(request);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));

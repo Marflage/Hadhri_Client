@@ -11,7 +11,7 @@ class AccountService {
   static const String baseUrl = 'http://localhost:8080/';
 
   // TODO: Research if HTTP concerns such as the request type should leak into the service layer.
-  Future<BaseViewModel> register(SignUpRequest request) async {
+  Future<BaseViewModel> signUp(SignUpRequest request) async {
     final url = '${baseUrl}sign-up';
     final uri = Uri.parse(url);
 
