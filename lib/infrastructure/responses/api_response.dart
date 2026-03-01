@@ -9,7 +9,7 @@ class ApiResponse<T> {
     this.message,
   });
 
-  factory ApiResponse(
+  factory ApiResponse.fromJson(
     Map<String, dynamic> json, {
     T Function(Map<String, dynamic>)? parseJsonData,
   }) {
