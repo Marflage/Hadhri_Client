@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/requests/sign_up_request.dart';
@@ -14,8 +15,8 @@ class AccountFormService {
     final url = '${baseUrl}sign-up';
     final uri = Uri.parse(url);
 
-    final body = jsonEncode(request);
     final vm = BaseViewModel(message: '');
+    final body = jsonEncode(request);
 
     try {
       final rawResponse = await post(
@@ -28,12 +29,19 @@ class AccountFormService {
       final response = ApiResponse(json);
       vm.message = response.message!;
 
-      if (rawResponse.statusCode != 200) {
-        if (response.error != null) {
-          vm.message = response.error!;
-        }
+      if (rawResponse.statusCode != 200 && response.error != null) {
+        vm.message = response.error!;
+      } else if (response.message != null) {
+        vm.message = response.message!;
       }
+
+      // TODO: Handle the case when both error and message are null.
     } catch (e) {
+      if (e is SocketException) {
+        vm.message = "Connection error. Please check your internet connection.";
+        return vm;
+      }
+
       vm.message = e.toString();
     }
 
