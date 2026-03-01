@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hadhri/domain/dtos/course.dart';
 import 'package:hadhri/infrastructure/responses/get_course_plans.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
+import 'package:hadhri/infrastructure/services/course_plan_service.dart';
+import 'package:pullex/pullex.dart';
 
 import '../../domain/dtos/class_schedule.dart';
 import '../../domain/dtos/class_session.dart';
@@ -10,12 +12,12 @@ import '../../infrastructure/requests/sign_up_request.dart';
 class SignUpForm extends StatefulWidget {
   SignUpForm({
     super.key,
-    required this.getCoursePlans,
-    required this.service,
+    required this.coursePlanService,
+    required this.accountService,
   });
 
-  final GetCoursePlansResponse getCoursePlans;
-  final AccountService service;
+  final CoursePlanService coursePlanService;
+  final AccountService accountService;
 
   @override
   State<SignUpForm> createState() => _SignUpFormState();
@@ -23,89 +25,111 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   @override
+  void initState() {
+    super.initState();
+    _onRefresh();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          // TODO: Validate all the fields.
-          TextFormField(
-            decoration: InputDecoration(labelText: 'First Name'),
-            validator: _validateFirstName,
-            onSaved: _onFirstNameSaved,
-          ),
-          TextFormField(
-            decoration: InputDecoration(labelText: 'Last Name'),
-            validator: _validateLastName,
-            onSaved: _onLastNameSaved,
-          ),
-          TextFormField(
-            decoration: InputDecoration(labelText: 'Email'),
-            validator: _validateEmail,
-            onSaved: _onEmailSaved,
-          ),
-          TextFormField(
-            decoration: InputDecoration(labelText: 'Phone Number'),
-            validator: _validatePhoneNumber,
-            onSaved: _onPhoneNumberSaved,
-          ),
-          DropdownMenuFormField(
-            initialSelection: _selectedCourse,
-            label: Text('Course'),
-            dropdownMenuEntries: _courseDropdownEntries,
-            onSelected: _onCourseSelected,
-          ),
-          DropdownMenuFormField(
-            controller: _classScheduleController,
-            enabled: _classScheduleDropdownEntries.isNotEmpty,
-            initialSelection: _selectedClassSchedule,
-            label: Text('Class Schedule'),
-            dropdownMenuEntries: _classScheduleDropdownEntries,
-            onSelected: _onClassScheduleSelected,
-          ),
-          DropdownMenuFormField(
-            controller: _classSessionController,
-            enabled: _classSessionDropdownEntries.isNotEmpty,
-            initialSelection: _selectedClassSession,
-            label: Text('Class Session'),
-            dropdownMenuEntries: _classSessionDropdownEntries,
-            onSelected: _onClassSessionSelected,
-          ),
-          DropdownMenuFormField(
-            controller: _semesterController,
-            enabled: _semesterDropdownEntries.isNotEmpty,
-            initialSelection: _selectedSemester,
-            label: Text('Semester'),
-            dropdownMenuEntries: _semesterDropdownEntries,
-            onSelected: _onSemesterSelected,
-          ),
-          // TODO: Obscure the text.
-          // TODO: Show icon to toggle password visibility.
-          // TODO: Create a unified component for password combining with confirm password.
-          TextFormField(
-            obscureText: _isPasswordVisible ? false : true,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              suffixIcon: IconButton(
-                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+    return PullexRefresh(
+      controller: _refreshController,
+      header: BaseHeader(),
+      onRefresh: _onRefresh,
+      child: _isFetchingData
+          ? Center(child: CircularProgressIndicator.adaptive())
+          : _isDataAvailable
+          ? Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // TODO: Validate all the fields.
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'First Name'),
+                    validator: _validateFirstName,
+                    onSaved: _onFirstNameSaved,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Last Name'),
+                    validator: _validateLastName,
+                    onSaved: _onLastNameSaved,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Email'),
+                    validator: _validateEmail,
+                    onSaved: _onEmailSaved,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Phone Number'),
+                    validator: _validatePhoneNumber,
+                    onSaved: _onPhoneNumberSaved,
+                  ),
+                  DropdownMenuFormField(
+                    initialSelection: _selectedCourse,
+                    label: Text('Course'),
+                    dropdownMenuEntries: _courseDropdownEntries,
+                    onSelected: _onCourseSelected,
+                  ),
+                  DropdownMenuFormField(
+                    controller: _classScheduleController,
+                    enabled: _classScheduleDropdownEntries.isNotEmpty,
+                    initialSelection: _selectedClassSchedule,
+                    label: Text('Class Schedule'),
+                    dropdownMenuEntries: _classScheduleDropdownEntries,
+                    onSelected: _onClassScheduleSelected,
+                  ),
+                  DropdownMenuFormField(
+                    controller: _classSessionController,
+                    enabled: _classSessionDropdownEntries.isNotEmpty,
+                    initialSelection: _selectedClassSession,
+                    label: Text('Class Session'),
+                    dropdownMenuEntries: _classSessionDropdownEntries,
+                    onSelected: _onClassSessionSelected,
+                  ),
+                  DropdownMenuFormField(
+                    controller: _semesterController,
+                    enabled: _semesterDropdownEntries.isNotEmpty,
+                    initialSelection: _selectedSemester,
+                    label: Text('Semester'),
+                    dropdownMenuEntries: _semesterDropdownEntries,
+                    onSelected: _onSemesterSelected,
+                  ),
+                  // TODO: Obscure the text.
+                  // TODO: Show icon to toggle password visibility.
+                  // TODO: Create a unified component for password combining with confirm password.
+                  TextFormField(
+                    obscureText: _isPasswordVisible ? false : true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      suffixIcon: IconButton(
+                        onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                        icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                      ),
+                    ),
+                    validator: _validatePassword,
+                    onSaved: _onPasswordSaved,
+                  ),
+                  // TODO: Match the passwords.
+                  TextFormField(
+                    obscureText: _isPasswordVisible ? false : true,
+                    decoration: InputDecoration(labelText: 'Confirm Password'),
+                    validator: _validateConfirmPassword,
+                  ),
+                  ElevatedButton(
+                    onPressed: _onSubmit,
+                    child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Register'),
+                  ),
+                ],
+              ),
+            )
+          : Center(
+              child: Visibility(
+                // TODO: If platform is desktop, show refresh button.
+                //   visible: ,
+                replacement: ElevatedButton(onPressed: _onRefresh, child: Text('Refresh')),
+                child: Text('Pull down to refresh.'),
               ),
             ),
-            validator: _validatePassword,
-            onSaved: _onPasswordSaved,
-          ),
-          // TODO: Match the passwords.
-          TextFormField(
-            obscureText: _isPasswordVisible ? false : true,
-            decoration: InputDecoration(labelText: 'Confirm Password'),
-            validator: _validateConfirmPassword,
-          ),
-          ElevatedButton(
-            onPressed: _onSubmit,
-            child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Register'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -114,12 +138,17 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _classScheduleController = TextEditingController();
   final TextEditingController _classSessionController = TextEditingController();
   final TextEditingController _semesterController = TextEditingController();
+  final RefreshController _refreshController = RefreshController();
 
   // UI states
   List<DropdownMenuEntry<ClassSchedule>> _classScheduleDropdownEntries = [];
   List<DropdownMenuEntry<ClassSession>> _classSessionDropdownEntries = [];
   List<DropdownMenuEntry<int>> _semesterDropdownEntries = [];
 
+  late GetCoursePlansResponse _getCoursePlansResponse;
+
+  bool _isFetchingData = true;
+  bool _isDataAvailable = false;
   bool _isLoading = false;
 
   // Non-UI
@@ -139,7 +168,7 @@ class _SignUpFormState extends State<SignUpForm> {
   bool _isPasswordVisible = false;
 
   List<DropdownMenuEntry<Course>> get _courseDropdownEntries {
-    return widget.getCoursePlans.coursePlans
+    return _getCoursePlansResponse.coursePlans
         .map(
           (x) => DropdownMenuEntry<Course>(
             label: x.course.name,
@@ -263,7 +292,7 @@ class _SignUpFormState extends State<SignUpForm> {
       );
       // TODO: Send a request to the backend.
 
-      final vm = await widget.service.signUp(request);
+      final vm = await widget.accountService.signUp(request);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
@@ -346,11 +375,35 @@ class _SignUpFormState extends State<SignUpForm> {
     return null;
   }
 
+  Future _onRefresh() async {
+    final vm = await widget.coursePlanService.fetchCoursePlansAsync();
+
+    setState(() => _isFetchingData = false);
+
+    if (vm.data == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
+      }
+
+      _refreshController.refreshCompleted();
+
+      return;
+    }
+
+    setState(() {
+      _isDataAvailable = true;
+      _getCoursePlansResponse = vm.data!;
+    });
+
+    _refreshController.refreshCompleted();
+  }
+
   @override
   void dispose() {
     _classScheduleController.dispose();
     _classSessionController.dispose();
     _semesterController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 }

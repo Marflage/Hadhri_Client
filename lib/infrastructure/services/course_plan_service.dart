@@ -22,7 +22,7 @@ class CoursePlanService {
       final rawResponse = await get(uri);
 
       final json = jsonDecode(rawResponse.body);
-      final response = ApiResponse<GetCoursePlansResponse>(
+      final response = ApiResponse<GetCoursePlansResponse>.fromJson(
         json,
         parseJsonData: (json) => GetCoursePlansResponse(json),
       );
