@@ -1,13 +1,13 @@
 class ApiResponse<T> {
-  final String? error;
-  final T? data;
-  final String? message;
-
   ApiResponse._({
     this.error,
     this.data,
     this.message,
   });
+
+  final String? error;
+  final T? data;
+  final String? message;
 
   factory ApiResponse.fromJson(
     Map<String, dynamic> json, {

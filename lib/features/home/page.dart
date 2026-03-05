@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> _logAttendance() async {
     // TODO: Send request to mark attendance.
-    const studentId = 8;
+    const int studentId = 8;
     final vm = await widget.attendanceService.logAttendance(studentId);
 
     if (mounted) {

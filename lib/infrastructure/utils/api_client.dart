@@ -10,23 +10,29 @@ class ApiClient {
 
   final _baseUrl = 'http://localhost:8080/';
 
-  Future<http.Response> get(String relUrl, Map<String, String> queryParams) async {
-    Uri uri = Uri.parse('$_baseUrl$relUrl');
+  Future<http.Response> get(String urlPath, Map<String, String> queryParams) async {
+    Uri uri = Uri.parse('$_baseUrl$urlPath');
     uri.queryParameters.addAll(queryParams);
 
-    http.Request('get', uri).headers;
     final Map<String, String> headers = await _addAuthorizationHeader({});
     final http.Response rawResponse = await http.get(uri, headers: headers);
 
     return rawResponse;
   }
 
-  Future<http.Response> post<T>(String relUrl, Map<String, String> headers, T payload) async {
-    Uri uri = Uri.parse('$_baseUrl$relUrl');
-    String body = jsonEncode(payload);
+  Future<http.Response> post<T>(
+    String urlPath,
+    Map<String, String> queryParams, {
+    Map<String, String> headers = const {},
+    T? payload,
+  }) async {
+    Uri uri = Uri.parse('$_baseUrl$urlPath');
+    uri.queryParameters.addAll(queryParams);
 
     headers = _addContentTypeHeader(headers);
     headers = await _addAuthorizationHeader(headers);
+
+    String body = jsonEncode(payload);
 
     final http.Response rawResponse = await http.post(uri, headers: headers, body: body);
 
@@ -57,3 +63,13 @@ class ApiClient {
     return h;
   }
 }
+
+// class QueryParamValue {
+//   QueryParamValue({required this.value}) {
+//     if (value is! String && value is! int) {
+//       throw ArgumentError('Value must be either String or int.');
+//     }
+//   }
+//
+//   final Object value;
+// }

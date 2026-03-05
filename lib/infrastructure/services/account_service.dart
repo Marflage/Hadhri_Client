@@ -64,7 +64,7 @@ class AccountService {
       );
 
       final json = jsonDecode(rawResponse.body);
-      final response = ApiResponse<String>.fromJson(json);
+      final ApiResponse<String> response = ApiResponse<String>.fromJson(json);
 
       if (response.error != null) {
         vm.message = response.error!;
