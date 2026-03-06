@@ -4,16 +4,12 @@ class SecureStorageService {
   // TODO: Analyze if this should be injected instead of being newed up here.
   final _storage = FlutterSecureStorage();
 
-  Future<String> read(String key) async {
+  Future<String?> read(String key) async {
     if (key.isEmpty) {
       throw Exception('Key is invalid');
     }
 
     String? value = await _storage.read(key: key);
-
-    if (value == null || value.isEmpty) {
-      throw Exception('No value found for key: $key');
-    }
 
     return value;
   }

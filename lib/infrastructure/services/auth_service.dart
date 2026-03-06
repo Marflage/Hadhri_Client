@@ -9,7 +9,13 @@ class AuthService {
   static const String authTokenKey = 'authToken';
 
   Future<String> getToken() async {
-    return await _storageService.read(authTokenKey);
+    final String? token = await _storageService.read(authTokenKey);
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Auth token not found.');
+    }
+
+    return token;
   }
 
   Future<void> saveToken(String value) async {
