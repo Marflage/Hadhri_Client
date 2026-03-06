@@ -11,8 +11,7 @@ class ApiClient {
   final _baseUrl = 'http://localhost:8080/';
 
   Future<http.Response> get(String urlPath, Map<String, String> queryParams) async {
-    Uri uri = Uri.parse('$_baseUrl$urlPath');
-    uri.queryParameters.addAll(queryParams);
+    Uri uri = Uri.parse('$_baseUrl$urlPath').replace(queryParameters: queryParams);
 
     final Map<String, String> headers = await _addAuthorizationHeader({});
     final http.Response rawResponse = await http.get(uri, headers: headers);
@@ -26,8 +25,7 @@ class ApiClient {
     Map<String, String> headers = const {},
     T? payload,
   }) async {
-    Uri uri = Uri.parse('$_baseUrl$urlPath');
-    uri.queryParameters.addAll(queryParams);
+    Uri uri = Uri.parse('$_baseUrl$urlPath').replace(queryParameters: queryParams);
 
     headers = _addContentTypeHeader(headers);
     headers = await _addAuthorizationHeader(headers);
