@@ -3,23 +3,20 @@ import 'dart:io';
 
 import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/responses/api_response.dart';
+import 'package:hadhri/infrastructure/services/base_service.dart';
 import 'package:http/http.dart';
 
-class AttendanceService {
-  final baseUrl = 'http://localhost:8080/';
+class AttendanceService extends BaseService {
+  AttendanceService({required super.apiClient});
 
   Future<BaseViewModel> logAttendance(int studentId) async {
-    final url = '${baseUrl}log-attendance?studentId=$studentId';
-    final uri = Uri.parse(url);
-
+    final urlPath = 'log-attendance';
+    final Map<String, String> queryParams = {'studentId': studentId.toString()};
     final vm = BaseViewModel(message: '');
 
+    // TODO: Why should this code be surrounded with a try-catch block?
     try {
-      final rawResponse = await post(
-        uri,
-        // TODO: Create a const for this.
-        headers: {'content-type': 'application/json'},
-      );
+      final Response rawResponse = await apiClient.post(urlPath, queryParams);
 
       final json = jsonDecode(rawResponse.body);
       final response = ApiResponse.fromJson(json);
