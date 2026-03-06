@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
+import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  ApiClient({required SecureStorageService storageService}) : _storageService = storageService;
+  ApiClient({required AuthService authService}) : _authService = authService;
 
-  final SecureStorageService _storageService;
+  final AuthService _authService;
 
   final _baseUrl = 'http://localhost:8080/';
 
@@ -43,8 +43,7 @@ class ApiClient {
 
   Future<Map<String, String>> _addAuthorizationHeader(Map<String, String> headers) async {
     final Map<String, String> h = Map.of(headers);
-
-    final String token = await _storageService.read('authToken');
+    final String token = await _authService.getToken();
     final Map<String, String> authHeader = {'Authorization': 'Bearer $token'};
 
     h.addAll(authHeader);
