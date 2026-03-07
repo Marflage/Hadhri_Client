@@ -25,4 +25,13 @@ class AuthService {
   Future<void> deleteToken() async {
     await _storageService.delete(authTokenKey);
   }
+
+  Future<bool> isLoggedIn() async {
+    try {
+      await getToken();
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 }
