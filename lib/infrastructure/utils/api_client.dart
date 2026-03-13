@@ -4,6 +4,7 @@ import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
+  // TODO: Analyze if auth token can be fetched in the constructor once and used throughout the app lifecycle.
   ApiClient({required AuthService authService}) : _authService = authService;
 
   final AuthService _authService;
@@ -20,13 +21,14 @@ class ApiClient {
   }
 
   Future<http.Response> post<T>(
-    String urlPath,
-    Map<String, String> queryParams, {
+    String urlPath, {
+    Map<String, String> queryParams = const {},
     Map<String, String> headers = const {},
     T? payload,
   }) async {
     Uri uri = Uri.parse('$_baseUrl$urlPath').replace(queryParameters: queryParams);
 
+    // TODO: Check if query params are not empty, then add them.
     headers = _addContentTypeHeader(headers);
     headers = await _addAuthorizationHeader(headers);
 

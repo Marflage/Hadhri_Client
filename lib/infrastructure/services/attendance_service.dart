@@ -16,7 +16,7 @@ class AttendanceService extends BaseService {
 
     // TODO: Why should this code be surrounded with a try-catch block?
     try {
-      final Response rawResponse = await apiClient.post(urlPath, queryParams);
+      final Response rawResponse = await apiClient.post(urlPath, queryParams: queryParams);
 
       final json = jsonDecode(rawResponse.body);
       final response = ApiResponse.fromJson(json);
