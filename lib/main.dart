@@ -28,11 +28,9 @@ class MainApp extends StatelessWidget {
         body: SafeArea(
           // TODO: Check for log-in session in local storage and if present, show the home page.
           // TODO: Research a better approach to construct the dependency graph.
-          child: Visibility(
-            visible: _isUserLoggedIn,
-            replacement: AccountPage(service: DiContainer.coursePlanService),
-            child: HomePage(attendanceService: DiContainer.attendanceService),
-          ),
+          child: _isUserLoggedIn
+              ? HomePage(attendanceService: DiContainer.attendanceService)
+              : AccountPage(service: DiContainer.coursePlanService),
         ),
       ),
     );
