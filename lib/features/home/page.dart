@@ -10,6 +10,9 @@ class HomePage extends StatefulWidget {
 
   final AttendanceService attendanceService;
 
+  // TODO: Store this in a base class.
+  static final String route = '/home';
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -20,32 +23,36 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('Assalamu Alaikum!'),
-        Text('Name'),
-        Text('Date'),
-        Placeholder(
-          child: Text('Attendance record'),
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Text('Assalamu Alaikum!'),
+            Text('Name'),
+            Text('Date'),
+            Placeholder(
+              child: Text('Attendance record'),
+            ),
+            SliderButton(
+              icon: Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+                size: _iconSize,
+              ),
+              buttonColor: Colors.green,
+              baseColor: Colors.purple,
+              highlightedColor: Colors.yellow,
+              buttonSize: _buttonSize,
+              // disable: true,
+              label: Text('Mark Attendance'),
+              shimmer: false,
+              vibrationFlag: true,
+              useGlassEffect: true,
+              action: _logAttendance,
+            ),
+          ],
         ),
-        SliderButton(
-          icon: Icon(
-            Icons.check_rounded,
-            color: Colors.white,
-            size: _iconSize,
-          ),
-          buttonColor: Colors.green,
-          baseColor: Colors.purple,
-          highlightedColor: Colors.yellow,
-          buttonSize: _buttonSize,
-          // disable: true,
-          label: Text('Mark Attendance'),
-          shimmer: false,
-          vibrationFlag: true,
-          useGlassEffect: true,
-          action: _logAttendance,
-        ),
-      ],
+      ),
     );
   }
 

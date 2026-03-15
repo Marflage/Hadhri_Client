@@ -24,15 +24,12 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: SafeArea(
-          // TODO: Check for log-in session in local storage and if present, show the home page.
-          // TODO: Research a better approach to construct the dependency graph.
-          child: _isUserLoggedIn
-              ? HomePage(attendanceService: DiContainer.attendanceService)
-              : AccountPage(service: DiContainer.coursePlanService),
-        ),
-      ),
+      initialRoute: _isUserLoggedIn ? AccountPage.route : HomePage.route,
+      routes: {
+        AccountPage.route: (context) =>
+            AccountPage(coursePlanService: DiContainer.coursePlanService),
+        HomePage.route: (context) => HomePage(attendanceService: DiContainer.attendanceService),
+      },
     );
   }
 }

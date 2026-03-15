@@ -8,10 +8,13 @@ import '../../infrastructure/services/course_plan_service.dart';
 class AccountPage extends StatefulWidget {
   const AccountPage({
     super.key,
-    required this.service,
+    required this.coursePlanService,
   });
 
-  final CoursePlanService service;
+  final CoursePlanService coursePlanService;
+
+  // TODO: Store this in a base class.
+  static final String route = '/login';
 
   @override
   State<AccountPage> createState() => _AccountPageState();
@@ -24,28 +27,30 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     // TODO: Analyze if this Scaffold can be removed safely.
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: _showSignInForm
-                // TODO: Remove the usage of DiContainer in the UI components.
-                ? SignInForm(accountService: DiContainer.accountService)
-                : SignUpForm(
-                    coursePlanService: DiContainer.coursePlanService,
-                    accountService: DiContainer.accountService,
-                  ),
-          ),
-          Row(
-            mainAxisAlignment: .center,
-            children: [
-              Text(_showSignInForm ? 'Do not have an account?' : 'Already have an account?'),
-              TextButton(
-                onPressed: () => setState(() => _showSignInForm = !_showSignInForm),
-                child: Text(_showSignInForm ? 'Sign up.' : 'Sign in.'),
-              ),
-            ],
-          ),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: _showSignInForm
+                  // TODO: Remove the usage of DiContainer in the UI components.
+                  ? SignInForm(accountService: DiContainer.accountService)
+                  : SignUpForm(
+                      coursePlanService: DiContainer.coursePlanService,
+                      accountService: DiContainer.accountService,
+                    ),
+            ),
+            Row(
+              mainAxisAlignment: .center,
+              children: [
+                Text(_showSignInForm ? 'Do not have an account?' : 'Already have an account?'),
+                TextButton(
+                  onPressed: () => setState(() => _showSignInForm = !_showSignInForm),
+                  child: Text(_showSignInForm ? 'Sign up.' : 'Sign in.'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

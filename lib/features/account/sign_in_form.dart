@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hadhri/infrastructure/requests/sign_in_request.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
 
+import '../home/page.dart';
+
 class SignInForm extends StatefulWidget {
   const SignInForm({
     super.key,
@@ -98,11 +100,13 @@ class _SignInFormState extends State<SignInForm> {
 
       final vm = await widget.accountService.signIn(request);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
-      }
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
 
       setState(() => _isLoading = false);
+
+      Navigator.pushReplacementNamed(context, HomePage.route);
     }
   }
 }
