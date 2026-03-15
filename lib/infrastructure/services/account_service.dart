@@ -25,26 +25,31 @@ class AccountService extends BaseService {
     final vm = BaseViewModel(message: '');
 
     try {
-      final Response rawResponse = await apiClient.post(urlPath, payload: request);
+      final Response rawResponse = await apiClient.post(
+        urlPath,
+        isAuthorized: false,
+        payload: request,
+      );
 
       final json = jsonDecode(rawResponse.body);
-      final ApiResponse<String> response = ApiResponse<String>.fromJson(json);
+      final ApiResponse<String> response = ApiResponse<String>.fromJson(
+        json,
+        parseJsonData: (json) => json['data'],
+      );
 
-      vm.message = response.message!;
-
-      if (rawResponse.statusCode != 200 && response.error != null) {
+      if (response.error?.isNotEmpty == true) {
         vm.message = response.error!;
-      } else if (response.message != null) {
+      } else if (response.message?.isNotEmpty == true) {
         vm.message = response.message!;
       }
 
-      if (response.data == null || response.data!.isEmpty) {
+      if (response.data?.isEmpty == true) {
         throw Exception('No data found.');
       }
 
       // TODO: Handle the case when both error and message are null.
 
-      // TODO: Store the auth token in storage.
+      await _authService.saveToken(response.data!);
     } on SocketException catch (e) {
       vm.message = "Connection error. Please check your internet connection.";
       return vm;
@@ -73,13 +78,14 @@ class AccountService extends BaseService {
         parseJsonData: (json) => json['data'],
       );
 
-      if (response.error != null && response.error!.isNotEmpty) {
+      if (response.error?.isNotEmpty == true) {
         vm.message = response.error!;
-      } else if (response.message != null && response.message!.isNotEmpty) {
+        return vm;
+      } else if (response.message?.isNotEmpty == true) {
         vm.message = response.message!;
       }
 
-      if (response.data == null) {
+      if (response.data?.isEmpty == true) {
         throw Exception("No data found.");
       }
 
