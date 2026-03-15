@@ -22,6 +22,20 @@ class ApiClient {
 
   Future<http.Response> post<T>(
     String urlPath, {
+    bool isAuthorized = true,
+    Map<String, String> queryParams = const {},
+    Map<String, String> headers = const {},
+    T? payload,
+  }) async {
+    if (isAuthorized) {
+      headers = await _addAuthorizationHeader(headers);
+    }
+
+    return _post(urlPath, queryParams: queryParams, headers: headers, payload: payload);
+  }
+
+  Future<http.Response> _post<T>(
+    String urlPath, {
     Map<String, String> queryParams = const {},
     Map<String, String> headers = const {},
     T? payload,
@@ -30,7 +44,6 @@ class ApiClient {
 
     // TODO: Check if query params are not empty, then add them.
     headers = _addContentTypeHeader(headers);
-    headers = await _addAuthorizationHeader(headers);
 
     String body = jsonEncode(payload);
 

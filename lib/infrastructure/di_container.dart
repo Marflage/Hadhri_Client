@@ -1,3 +1,4 @@
+import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:hadhri/infrastructure/services/attendance_service.dart';
 import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:hadhri/infrastructure/services/course_plan_service.dart';
@@ -11,6 +12,7 @@ class DiContainer {
 
   static late final AttendanceService attendanceService;
   static late final CoursePlanService coursePlanService;
+  static late final AccountService accountService;
 
   static void init() {
     storageService = SecureStorageService();
@@ -19,5 +21,6 @@ class DiContainer {
 
     attendanceService = AttendanceService(apiClient: apiClient);
     coursePlanService = CoursePlanService();
+    accountService = AccountService(apiClient: apiClient, authService: authService);
   }
 }

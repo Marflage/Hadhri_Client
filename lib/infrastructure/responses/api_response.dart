@@ -16,7 +16,7 @@ class ApiResponse<T> {
     if (json.isEmpty) throw Exception('Empty JSON');
 
     return ApiResponse._(
-      data: json['data'] != null && parseJsonData != null ? parseJsonData(json['data']) : null,
+      data: json['data'] != null && parseJsonData != null ? parseJsonData(json) : null,
       message: json['message'],
       error: json['error'],
     );

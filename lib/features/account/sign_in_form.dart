@@ -5,10 +5,10 @@ import 'package:hadhri/infrastructure/services/account_service.dart';
 class SignInForm extends StatefulWidget {
   const SignInForm({
     super.key,
-    required this.service,
+    required this.accountService,
   });
 
-  final AccountService service;
+  final AccountService accountService;
 
   @override
   State<SignInForm> createState() => _SignInFormState();
@@ -21,11 +21,13 @@ class _SignInFormState extends State<SignInForm> {
       key: _formKey,
       child: Column(
         children: [
+          // TODO: Move to next input field after pressing the return or the tab key on mobile devices as well.
           TextFormField(
             decoration: InputDecoration(labelText: 'Email'),
             validator: _onEmailValidated,
             onSaved: _onEmailSaved,
           ),
+          // TODO: Add button to toggle password visibility.
           TextFormField(
             decoration: InputDecoration(labelText: 'Password'),
             obscureText: true,
@@ -94,17 +96,11 @@ class _SignInFormState extends State<SignInForm> {
         password: _password,
       );
 
-      final vm = await widget.service.signIn(request);
+      final vm = await widget.accountService.signIn(request);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
       }
-
-      if (vm.data == null) {
-        return;
-      }
-
-      // TODO: Store the token in some local storage.
 
       setState(() => _isLoading = false);
     }

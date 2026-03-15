@@ -1,6 +1,16 @@
 class SignInRequest {
   SignInRequest({
-    required String email,
-    required String password,
+    required this.email,
+    required this.password,
   });
+
+  final String email;
+  final String password;
+
+  Map<String, String> toJson() {
+    return {
+      'email': email,
+      'password': password,
+    };
+  }
 }

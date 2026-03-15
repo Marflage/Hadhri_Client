@@ -5,29 +5,31 @@ import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/requests/sign_in_request.dart';
 import 'package:hadhri/infrastructure/requests/sign_up_request.dart';
 import 'package:hadhri/infrastructure/responses/api_response.dart';
+import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:http/http.dart';
 
-class AccountService {
-  // TODO: Store this in a config file.
-  static const String baseUrl = 'http://localhost:8080/';
+import 'base_service.dart';
+
+class AccountService extends BaseService {
+  AccountService({
+    required super.apiClient,
+    required AuthService authService,
+  }) : _authService = authService;
+
+  final AuthService _authService;
 
   // TODO: Research if HTTP concerns such as the request type should leak into the service layer.
   Future<BaseViewModel> signUp(SignUpRequest request) async {
-    final url = '${baseUrl}sign-up';
-    final uri = Uri.parse(url);
+    final urlPath = 'sign-up';
 
     final vm = BaseViewModel(message: '');
-    final body = jsonEncode(request);
 
     try {
-      final rawResponse = await post(
-        uri,
-        headers: {'content-type': 'application/json'},
-        body: body,
-      );
+      final Response rawResponse = await apiClient.post(urlPath, payload: request);
 
       final json = jsonDecode(rawResponse.body);
-      final response = ApiResponse.fromJson(json);
+      final ApiResponse<String> response = ApiResponse<String>.fromJson(json);
+
       vm.message = response.message!;
 
       if (rawResponse.statusCode != 200 && response.error != null) {
@@ -36,13 +38,17 @@ class AccountService {
         vm.message = response.message!;
       }
 
-      // TODO: Handle the case when both error and message are null.
-    } catch (e) {
-      if (e is SocketException) {
-        vm.message = "Connection error. Please check your internet connection.";
-        return vm;
+      if (response.data == null || response.data!.isEmpty) {
+        throw Exception('No data found.');
       }
 
+      // TODO: Handle the case when both error and message are null.
+
+      // TODO: Store the auth token in storage.
+    } on SocketException catch (e) {
+      vm.message = "Connection error. Please check your internet connection.";
+      return vm;
+    } catch (e) {
       vm.message = e.toString();
     }
 
@@ -50,25 +56,26 @@ class AccountService {
   }
 
   Future<BaseViewModel<String>> signIn(SignInRequest request) async {
-    final url = '${baseUrl}sign-in';
-    final uri = Uri.parse(url);
+    final String urlPath = 'sign-in';
 
-    final body = jsonEncode(request);
     final vm = BaseViewModel<String>(message: '');
 
     try {
-      final rawResponse = await post(
-        uri,
-        headers: {'content-type': 'application/json'},
-        body: body,
+      final Response rawResponse = await apiClient.post(
+        urlPath,
+        isAuthorized: false,
+        payload: request,
       );
 
       final json = jsonDecode(rawResponse.body);
-      final ApiResponse<String> response = ApiResponse<String>.fromJson(json);
+      final ApiResponse<String> response = ApiResponse<String>.fromJson(
+        json,
+        parseJsonData: (json) => json['data'],
+      );
 
-      if (response.error != null) {
+      if (response.error != null && response.error!.isNotEmpty) {
         vm.message = response.error!;
-      } else if (response.message != null) {
+      } else if (response.message != null && response.message!.isNotEmpty) {
         vm.message = response.message!;
       }
 
@@ -76,13 +83,11 @@ class AccountService {
         throw Exception("No data found.");
       }
 
-      vm.data = response.data;
+      await _authService.saveToken(response.data!);
+    } on SocketException catch (e) {
+      vm.message = "Connection error. Please check your internet connection.";
+      return vm;
     } catch (e) {
-      if (e is SocketException) {
-        vm.message = "Connection error. Please check your internet connection.";
-        return vm;
-      }
-
       vm.message = e.toString();
     }
 
