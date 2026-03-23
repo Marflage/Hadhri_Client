@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/requests/sign_in_request.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
 
@@ -98,13 +99,18 @@ class _SignInFormState extends State<SignInForm> {
         password: _password,
       );
 
-      final vm = await widget.accountService.signIn(request);
+      final BaseViewModel<String> vm = await widget.accountService.signIn(request);
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
-
       setState(() => _isLoading = false);
+
+      if (vm.error?.isNotEmpty == true) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.error!)));
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
 
       Navigator.pushReplacementNamed(context, HomePage.route);
     }

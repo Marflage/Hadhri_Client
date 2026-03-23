@@ -65,7 +65,7 @@ class AccountService extends BaseService {
   Future<BaseViewModel<String>> signIn(SignInRequest request) async {
     final String urlPath = 'sign-in';
 
-    final vm = BaseViewModel<String>(message: '');
+    final BaseViewModel<String> vm = BaseViewModel<String>();
 
     try {
       final Response rawResponse = await apiClient.post(
@@ -81,7 +81,7 @@ class AccountService extends BaseService {
       );
 
       if (response.error?.isNotEmpty == true) {
-        vm.message = response.error!;
+        vm.error = response.error!;
         return vm;
       } else if (response.message?.isNotEmpty == true) {
         vm.message = response.message!;
@@ -93,10 +93,10 @@ class AccountService extends BaseService {
 
       await _authService.saveToken(response.data!);
     } on SocketException {
-      vm.message = 'Connection error. Please check your internet connection.';
+      vm.error = 'Connection error. Please check your internet connection.';
       return vm;
     } catch (e) {
-      vm.message = e.toString();
+      vm.error = e.toString();
     }
 
     return vm;

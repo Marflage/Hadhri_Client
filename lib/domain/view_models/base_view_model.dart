@@ -1,9 +1,11 @@
 class BaseViewModel<T> {
-  String message;
-  T? data;
-
   BaseViewModel({
-    required this.message,
+    this.message,
     this.data,
+    this.error,
   });
+
+  String? message;
+  T? data;
+  String? error;
 }

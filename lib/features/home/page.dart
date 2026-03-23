@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
     final vm = await widget.attendanceService.logAttendance(studentId);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
     }
 
     // TODO: Store the token in shared prefs.
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
 
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 
     if (vs.data != null) {
       setState(() {

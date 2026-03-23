@@ -295,7 +295,7 @@ class _SignUpFormState extends State<SignUpForm> {
       final vm = await widget.accountService.signUp(request);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
       }
 
       setState(() => _isLoading = false);
@@ -382,7 +382,8 @@ class _SignUpFormState extends State<SignUpForm> {
 
     if (vm.data == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message)));
+        // TODO: Clear previous snack bars before showing a new one.
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
       }
 
       _refreshController.refreshCompleted();
