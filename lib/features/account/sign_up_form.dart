@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hadhri/domain/dtos/course.dart';
+import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/responses/get_course_plans.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:hadhri/infrastructure/services/course_plan_service.dart';
@@ -376,24 +377,28 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future _onRefresh() async {
-    final vm = await widget.coursePlanService.fetchCoursePlansAsync();
+    final BaseViewState<GetCoursePlansResponse> vs = await widget.coursePlanService
+        .fetchCoursePlansAsync();
 
     setState(() => _isFetchingData = false);
 
-    if (vm.data == null) {
-      if (mounted) {
-        // TODO: Clear previous snack bars before showing a new one.
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
-      }
+    if (!mounted) return;
 
+    if (vs.error?.isNotEmpty == true) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
+    }
+
+    // TODO: Clear previous snack bars before showing a new one.
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
+
+    if (vs.data == null) {
       _refreshController.refreshCompleted();
-
       return;
     }
 
     setState(() {
       _isDataAvailable = true;
-      _getCoursePlansResponse = vm.data!;
+      _getCoursePlansResponse = vs.data!;
     });
 
     _refreshController.refreshCompleted();
