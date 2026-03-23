@@ -20,10 +20,10 @@ class AccountService extends BaseService {
   final AuthService _authService;
 
   // TODO: Research if HTTP concerns such as the request type should leak into the service layer.
-  Future<BaseViewModel> signUp(SignUpRequest request) async {
+  Future<BaseViewState> signUp(SignUpRequest request) async {
     final urlPath = 'sign-up';
 
-    final vm = BaseViewModel(message: '');
+    final BaseViewState<dynamic> vs = BaseViewState(message: '');
 
     try {
       final Response rawResponse = await apiClient.post(
@@ -39,10 +39,10 @@ class AccountService extends BaseService {
       );
 
       if (response.error?.isNotEmpty == true) {
-        vm.message = response.error!;
-        return vm;
+        vs.message = response.error!;
+        return vs;
       } else if (response.message?.isNotEmpty == true) {
-        vm.message = response.message!;
+        vs.message = response.message!;
       }
 
       if (response.data?.isEmpty == true) {
@@ -53,19 +53,19 @@ class AccountService extends BaseService {
 
       await _authService.saveToken(response.data!);
     } on SocketException {
-      vm.message = "Connection error. Please check your internet connection.";
-      return vm;
+      vs.message = "Connection error. Please check your internet connection.";
+      return vs;
     } catch (e) {
-      vm.message = e.toString();
+      vs.message = e.toString();
     }
 
-    return vm;
+    return vs;
   }
 
-  Future<BaseViewModel<String>> signIn(SignInRequest request) async {
+  Future<BaseViewState<String>> signIn(SignInRequest request) async {
     final String urlPath = 'sign-in';
 
-    final BaseViewModel<String> vm = BaseViewModel<String>();
+    final BaseViewState<String> vs = BaseViewState<String>();
 
     try {
       final Response rawResponse = await apiClient.post(
@@ -81,10 +81,10 @@ class AccountService extends BaseService {
       );
 
       if (response.error?.isNotEmpty == true) {
-        vm.error = response.error!;
-        return vm;
+        vs.error = response.error!;
+        return vs;
       } else if (response.message?.isNotEmpty == true) {
-        vm.message = response.message!;
+        vs.message = response.message!;
       }
 
       if (response.data?.isEmpty == true) {
@@ -93,21 +93,23 @@ class AccountService extends BaseService {
 
       await _authService.saveToken(response.data!);
     } on SocketException {
-      vm.error = 'Connection error. Please check your internet connection.';
-      return vm;
+      vs.error = 'Connection error. Please check your internet connection.';
+      return vs;
     } catch (e) {
-      vm.error = e.toString();
+      vs.error = e.toString();
     }
 
-    return vm;
+    return vs;
   }
 
-  Future<BaseViewModel<GetStudentDetailsResponse>> getStudentDetails(int id) async {
+  Future<BaseViewState<GetStudentDetailsResponse>> getStudentDetails(int id) async {
     final String urlPath = 'student-details';
 
     Map<String, String> queryParams = {'studentId': '$id'};
 
-    final vs = BaseViewModel<GetStudentDetailsResponse>(message: '');
+    final BaseViewState<GetStudentDetailsResponse> vs = BaseViewState<GetStudentDetailsResponse>(
+      message: '',
+    );
 
     try {
       final rawResponse = await apiClient.get(urlPath, queryParams);

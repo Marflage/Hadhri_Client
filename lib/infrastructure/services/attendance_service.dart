@@ -9,10 +9,10 @@ import 'package:http/http.dart';
 class AttendanceService extends BaseService {
   AttendanceService({required super.apiClient});
 
-  Future<BaseViewModel> logAttendance(int studentId) async {
+  Future<BaseViewState> logAttendance(int studentId) async {
     final urlPath = 'log-attendance';
     final Map<String, String> queryParams = {'studentId': studentId.toString()};
-    final vm = BaseViewModel(message: '');
+    final BaseViewState<dynamic> vs = BaseViewState(message: '');
 
     // TODO: Why should this code be surrounded with a try-catch block?
     try {
@@ -22,19 +22,19 @@ class AttendanceService extends BaseService {
       final response = ApiResponse.fromJson(json);
 
       if (response.error != null) {
-        vm.message = response.error!;
+        vs.message = response.error!;
       } else if (response.message != null) {
-        vm.message = response.message!;
+        vs.message = response.message!;
       }
     } catch (e) {
       if (e is SocketException) {
-        vm.message = 'Connection. Please check your internet connection.';
-        return vm;
+        vs.message = 'Connection. Please check your internet connection.';
+        return vs;
       }
 
-      vm.message = e.toString();
+      vs.message = e.toString();
     }
 
-    return vm;
+    return vs;
   }
 }

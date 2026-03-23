@@ -1,5 +1,5 @@
-class BaseViewModel<T> {
-  BaseViewModel({
+class BaseViewState<T> {
+  BaseViewState({
     this.message,
     this.data,
     this.error,

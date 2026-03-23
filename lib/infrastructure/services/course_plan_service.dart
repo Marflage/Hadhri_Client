@@ -10,13 +10,15 @@ class CoursePlanService {
   // TODO: Store this in a config file for maintainability and reusability.
   static const String _baseUrl = 'http://localhost:8080/';
 
-  Future<BaseViewModel<GetCoursePlansResponse>> fetchCoursePlansAsync() async {
+  Future<BaseViewState<GetCoursePlansResponse>> fetchCoursePlansAsync() async {
     // TODO: Create a constant for this URL.
     const url = '${_baseUrl}course-plans';
     // const url = 'http://10.0.2.2:8080/course-plans';
     final uri = Uri.parse(url);
 
-    final vm = BaseViewModel<GetCoursePlansResponse>(message: '');
+    final BaseViewState<GetCoursePlansResponse> vs = BaseViewState<GetCoursePlansResponse>(
+      message: '',
+    );
 
     try {
       final rawResponse = await get(uri);
@@ -28,9 +30,9 @@ class CoursePlanService {
       );
 
       if (rawResponse.statusCode != 200 && response.error != null) {
-        vm.message = response.error!;
+        vs.message = response.error!;
       } else if (response.message != null) {
-        vm.message = response.message!;
+        vs.message = response.message!;
       }
 
       // TODO: Handle the case when both error and message are null.
@@ -39,16 +41,16 @@ class CoursePlanService {
         throw Exception('No data found');
       }
 
-      vm.data = response.data;
+      vs.data = response.data;
     } catch (e) {
       if (e is SocketException) {
-        vm.message = "Connection error. Please check your internet connection.";
-        return vm;
+        vs.message = "Connection error. Please check your internet connection.";
+        return vs;
       }
 
-      vm.message = e.toString();
+      vs.message = e.toString();
     }
 
-    return vm;
+    return vs;
   }
 }

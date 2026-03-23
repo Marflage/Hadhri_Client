@@ -99,18 +99,18 @@ class _SignInFormState extends State<SignInForm> {
         password: _password,
       );
 
-      final BaseViewModel<String> vm = await widget.accountService.signIn(request);
+      final BaseViewState<String> vs = await widget.accountService.signIn(request);
 
       if (!mounted) return;
 
       setState(() => _isLoading = false);
 
-      if (vm.error?.isNotEmpty == true) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.error!)));
+      if (vs.error?.isNotEmpty == true) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 
       Navigator.pushReplacementNamed(context, HomePage.route);
     }
