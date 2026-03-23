@@ -15,6 +15,8 @@ class ApiClient {
     Uri uri = Uri.parse('$_baseUrl$urlPath').replace(queryParameters: queryParams);
 
     final Map<String, String> headers = await _addAuthorizationHeader({});
+    headers.addAll({'accept': 'application/json'});
+
     final http.Response rawResponse = await http.get(uri, headers: headers);
 
     return rawResponse;

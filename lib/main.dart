@@ -28,7 +28,10 @@ class MainApp extends StatelessWidget {
       routes: {
         AccountPage.route: (context) =>
             AccountPage(coursePlanService: DiContainer.coursePlanService),
-        HomePage.route: (context) => HomePage(attendanceService: DiContainer.attendanceService),
+        HomePage.route: (context) => HomePage(
+          attendanceService: DiContainer.attendanceService,
+          accountService: DiContainer.accountService,
+        ),
       },
     );
   }
