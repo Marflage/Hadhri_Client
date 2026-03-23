@@ -26,7 +26,7 @@ class CoursePlanService {
       final json = jsonDecode(rawResponse.body);
       final response = ApiResponse<GetCoursePlansResponse>.fromJson(
         json,
-        parseJsonData: (json) => GetCoursePlansResponse(json),
+        parseJsonData: (json) => GetCoursePlansResponse(json['data']),
       );
 
       if (rawResponse.statusCode != 200 && response.error != null) {
