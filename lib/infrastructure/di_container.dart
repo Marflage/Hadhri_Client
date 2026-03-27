@@ -21,6 +21,10 @@ class DiContainer {
 
     attendanceService = AttendanceService(apiClient: apiClient);
     coursePlanService = CoursePlanService();
-    accountService = AccountService(apiClient: apiClient, authService: authService);
+    accountService = AccountService(
+      apiClient: apiClient,
+      authService: authService,
+      storageService: storageService,
+    );
   }
 }

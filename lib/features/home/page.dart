@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:hadhri/infrastructure/responses/get_student_details_response.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:hadhri/infrastructure/services/attendance_service.dart';
+import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
 import 'package:slider_button/slider_button.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.attendanceService, required this.accountService});
+  const HomePage({
+    super.key,
+    required this.attendanceService,
+    required this.accountService,
+    required this.storageService,
+  });
 
   final AttendanceService attendanceService;
   final AccountService accountService;
+  final SecureStorageService storageService;
 
   // TODO: Store this in a base class.
   static final String route = '/home';
@@ -39,7 +46,6 @@ class _HomePageState extends State<HomePage> {
             ? Center(child: CircularProgressIndicator.adaptive())
             : Column(
                 children: [
-                  Text('Assalamu Alaikum!'),
                   Text('السلام عليكم'),
                   Text('${_studentDetails.firstName} ${_studentDetails.lastName}'),
                   Text('You are enrolled in ${_studentDetails.courseName}'),
@@ -95,9 +101,27 @@ class _HomePageState extends State<HomePage> {
     setState(() => _isLoadingStudentDetails = true);
 
     // TODO: Fetch student ID from secure storage and use that to request for student details.
-    final vs = await widget.accountService.getStudentDetails(8);
+    String? studentIdString = await widget.storageService.read('studentId');
 
     if (!mounted) return;
+
+    if (studentIdString?.isEmpty == true) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to retrieve student ID.')));
+      return;
+    }
+
+    int? studentId = int.tryParse(studentIdString!);
+
+    if (studentId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to retrieve student ID.')));
+      return;
+    }
+
+    final vs = await widget.accountService.getStudentDetails(studentId);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 

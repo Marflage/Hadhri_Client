@@ -6,7 +6,9 @@ import 'package:hadhri/infrastructure/requests/sign_in_request.dart';
 import 'package:hadhri/infrastructure/requests/sign_up_request.dart';
 import 'package:hadhri/infrastructure/responses/api_response.dart';
 import 'package:hadhri/infrastructure/responses/get_student_details_response.dart';
+import 'package:hadhri/infrastructure/responses/sign_in_response.dart';
 import 'package:hadhri/infrastructure/services/auth_service.dart';
+import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
 import 'package:http/http.dart';
 
 import 'base_service.dart';
@@ -15,9 +17,12 @@ class AccountService extends BaseService {
   AccountService({
     required super.apiClient,
     required AuthService authService,
-  }) : _authService = authService;
+    required SecureStorageService storageService,
+  }) : _authService = authService,
+       _storageService = storageService;
 
   final AuthService _authService;
+  final SecureStorageService _storageService;
 
   // TODO: Research if HTTP concerns such as the request type should leak into the service layer.
   Future<BaseViewState> signUp(SignUpRequest request) async {
@@ -75,9 +80,9 @@ class AccountService extends BaseService {
       );
 
       final json = jsonDecode(rawResponse.body);
-      final ApiResponse<String> response = ApiResponse<String>.fromJson(
+      final ApiResponse<SignInResponse> response = ApiResponse<SignInResponse>.fromJson(
         json,
-        parseJsonData: (json) => json['data'],
+        parseJsonData: (json) => SignInResponse.fromJson(json['data']),
       );
 
       if (response.error?.isNotEmpty == true) {
@@ -87,11 +92,18 @@ class AccountService extends BaseService {
         vs.message = response.message!;
       }
 
-      if (response.data?.isEmpty == true) {
+      if (response.data == null) {
         throw Exception('No data found.');
       }
 
-      await _authService.saveToken(response.data!);
+      int studentId = response.data!.studentId;
+      String token = response.data!.token;
+
+      if (studentId <= 0) throw ArgumentError('Invalid student ID.');
+      if (token.isEmpty) throw ArgumentError('Invalid token.');
+
+      await _storageService.write('studentId', studentId.toString());
+      await _authService.saveToken(token);
     } on SocketException {
       vs.error = 'Connection error. Please check your internet connection.';
       return vs;
