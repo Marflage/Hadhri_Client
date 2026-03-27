@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:hadhri/infrastructure/services/auth_service.dart';
+import 'package:hadhri/infrastructure/services/token_service.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
   // TODO: Analyze if auth token can be fetched in the constructor once and used throughout the app lifecycle.
-  ApiClient({required AuthService authService}) : _authService = authService;
+  ApiClient({required TokenService tokenService}) : _tokenService = tokenService;
 
-  final AuthService _authService;
-
+  final TokenService _tokenService;
   final _baseUrl = 'http://localhost:8080/';
 
   Future<http.Response> get(String urlPath, Map<String, String> queryParams) async {
@@ -60,7 +59,7 @@ class ApiClient {
 
   Future<Map<String, String>> _addAuthorizationHeader(Map<String, String> headers) async {
     final Map<String, String> h = Map.of(headers);
-    final String token = await _authService.getToken();
+    final String token = await _tokenService.getToken();
     final Map<String, String> authHeader = {'Authorization': 'Bearer $token'};
 
     h.addAll(authHeader);

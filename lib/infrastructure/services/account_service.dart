@@ -7,8 +7,8 @@ import 'package:hadhri/infrastructure/requests/sign_up_request.dart';
 import 'package:hadhri/infrastructure/responses/api_response.dart';
 import 'package:hadhri/infrastructure/responses/get_student_details_response.dart';
 import 'package:hadhri/infrastructure/responses/sign_in_response.dart';
-import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
+import 'package:hadhri/infrastructure/services/token_service.dart';
 import 'package:http/http.dart';
 
 import 'base_service.dart';
@@ -16,13 +16,13 @@ import 'base_service.dart';
 class AccountService extends BaseService {
   AccountService({
     required super.apiClient,
-    required AuthService authService,
+    required TokenService tokenService,
     required SecureStorageService storageService,
-  }) : _authService = authService,
+  }) : _tokenService = tokenService,
        _storageService = storageService;
 
-  final AuthService _authService;
   final SecureStorageService _storageService;
+  final TokenService _tokenService;
 
   // TODO: Research if HTTP concerns such as the request type should leak into the service layer.
   Future<BaseViewState> signUp(SignUpRequest request) async {
@@ -56,7 +56,7 @@ class AccountService extends BaseService {
 
       // TODO: Handle the case when both error and message are null.
 
-      await _authService.saveToken(response.data!);
+      await _tokenService.saveToken(response.data!);
     } on SocketException {
       vs.message = "Connection error. Please check your internet connection.";
       return vs;
@@ -103,7 +103,7 @@ class AccountService extends BaseService {
       if (token.isEmpty) throw ArgumentError('Invalid token.');
 
       await _storageService.write('studentId', studentId.toString());
-      await _authService.saveToken(token);
+      await _tokenService.saveToken(token);
     } on SocketException {
       vs.error = 'Connection error. Please check your internet connection.';
       return vs;
