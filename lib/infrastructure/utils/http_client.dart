@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:hadhri/infrastructure/services/token_service.dart';
 import 'package:http/http.dart' as http;
 
-class ApiClient {
+class HttpClient {
   // TODO: Analyze if auth token can be fetched in the constructor once and used throughout the app lifecycle.
-  ApiClient({required TokenService tokenService}) : _tokenService = tokenService;
+  HttpClient({required TokenService tokenService}) : _tokenService = tokenService;
 
   final TokenService _tokenService;
   final _baseUrl = 'http://localhost:8080/';

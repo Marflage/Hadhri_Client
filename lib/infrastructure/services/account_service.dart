@@ -8,7 +8,7 @@ import 'package:hadhri/infrastructure/responses/get_student_details_response.dar
 import 'base_service.dart';
 
 class AccountService extends BaseService {
-  AccountService({required super.apiClient});
+  AccountService({required super.httpClient});
 
   Future<BaseViewState<GetStudentDetailsResponse>> getStudentDetails(int id) async {
     final String urlPath = 'student-details';
@@ -20,7 +20,7 @@ class AccountService extends BaseService {
     );
 
     try {
-      final rawResponse = await apiClient.get(urlPath, queryParams);
+      final rawResponse = await httpClient.get(urlPath, queryParams);
       final json = jsonDecode(rawResponse.body);
 
       final ApiResponse<GetStudentDetailsResponse> response =

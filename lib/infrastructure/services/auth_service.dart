@@ -14,7 +14,7 @@ import '../responses/sign_in_response.dart';
 
 class AuthService extends BaseService {
   AuthService({
-    required super.apiClient,
+    required super.httpClient,
     required TokenService tokenService,
     required SecureStorageService storageService,
   }) : _tokenService = tokenService,
@@ -30,7 +30,7 @@ class AuthService extends BaseService {
     final BaseViewState<dynamic> vs = BaseViewState(message: '');
 
     try {
-      final Response rawResponse = await apiClient.post(
+      final Response rawResponse = await httpClient.post(
         urlPath,
         isAuthorized: false,
         payload: request,
@@ -72,7 +72,7 @@ class AuthService extends BaseService {
     final BaseViewState<String> vs = BaseViewState<String>();
 
     try {
-      final Response rawResponse = await apiClient.post(
+      final Response rawResponse = await httpClient.post(
         urlPath,
         isAuthorized: false,
         payload: request,

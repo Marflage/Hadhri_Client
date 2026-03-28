@@ -1,7 +1,7 @@
-import 'package:hadhri/infrastructure/utils/api_client.dart';
+import 'package:hadhri/infrastructure/utils/http_client.dart';
 
 class BaseService {
-  BaseService({required this.apiClient});
+  BaseService({required this.httpClient});
 
-  final ApiClient apiClient;
+  final HttpClient httpClient;
 }

@@ -7,7 +7,7 @@ import 'package:hadhri/infrastructure/services/base_service.dart';
 import 'package:http/http.dart';
 
 class AttendanceService extends BaseService {
-  AttendanceService({required super.apiClient});
+  AttendanceService({required super.httpClient});
 
   Future<BaseViewState> logAttendance(int studentId) async {
     final urlPath = 'log-attendance';
@@ -16,7 +16,7 @@ class AttendanceService extends BaseService {
 
     // TODO: Why should this code be surrounded with a try-catch block?
     try {
-      final Response rawResponse = await apiClient.post(urlPath, queryParams: queryParams);
+      final Response rawResponse = await httpClient.post(urlPath, queryParams: queryParams);
 
       final json = jsonDecode(rawResponse.body);
       final response = ApiResponse.fromJson(json);
