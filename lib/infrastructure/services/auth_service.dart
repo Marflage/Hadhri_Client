@@ -113,7 +113,7 @@ class AuthService extends BaseService {
     return vs;
   }
 
-  Future<bool> isLoggedIn() async {
+  Future<bool> isSignedIn() async {
     try {
       await _tokenService.getTokenIfValid();
     } catch (e) {

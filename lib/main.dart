@@ -9,7 +9,7 @@ void main() async {
 
   DiContainer.init();
 
-  final bool isUserLoggedIn = await DiContainer.authService.isLoggedIn();
+  final bool isUserLoggedIn = await DiContainer.authService.isSignedIn();
 
   runApp(
     MainApp(isUserLoggedIn: isUserLoggedIn),
