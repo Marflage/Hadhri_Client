@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: _isUserLoggedIn ? AccountPage.route : HomePage.route,
+      initialRoute: _isUserLoggedIn ? HomePage.route : AccountPage.route,
       routes: {
         AccountPage.route: (context) =>
             AccountPage(coursePlanService: DiContainer.coursePlanService),
