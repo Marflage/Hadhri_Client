@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/requests/sign_in_request.dart';
-import 'package:hadhri/infrastructure/services/account_service.dart';
+import 'package:hadhri/infrastructure/services/auth_service.dart';
 
 import '../home/page.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm({
     super.key,
-    required this.accountService,
+    required this.authService,
   });
 
-  final AccountService accountService;
+  final AuthService authService;
 
   @override
   State<SignInForm> createState() => _SignInFormState();
@@ -99,7 +99,7 @@ class _SignInFormState extends State<SignInForm> {
         password: _password,
       );
 
-      final BaseViewState<String> vs = await widget.accountService.signIn(request);
+      final BaseViewState<String> vs = await widget.authService.signIn(request);
 
       if (!mounted) return;
 

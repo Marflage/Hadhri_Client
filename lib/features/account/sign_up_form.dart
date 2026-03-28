@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hadhri/domain/dtos/course.dart';
 import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/responses/get_course_plans.dart';
-import 'package:hadhri/infrastructure/services/account_service.dart';
+import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:hadhri/infrastructure/services/course_plan_service.dart';
 import 'package:pullex/pullex.dart';
 
@@ -14,11 +14,11 @@ class SignUpForm extends StatefulWidget {
   SignUpForm({
     super.key,
     required this.coursePlanService,
-    required this.accountService,
+    required this.authService,
   });
 
   final CoursePlanService coursePlanService;
-  final AccountService accountService;
+  final AuthService authService;
 
   @override
   State<SignUpForm> createState() => _SignUpFormState();
@@ -293,7 +293,7 @@ class _SignUpFormState extends State<SignUpForm> {
       );
       // TODO: Send a request to the backend.
 
-      final vm = await widget.accountService.signUp(request);
+      final vm = await widget.authService.signUp(request);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));

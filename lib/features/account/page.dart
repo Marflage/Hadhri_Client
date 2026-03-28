@@ -33,10 +33,10 @@ class _AccountPageState extends State<AccountPage> {
             Expanded(
               child: _showSignInForm
                   // TODO: Remove the usage of DiContainer in the UI components.
-                  ? SignInForm(accountService: DiContainer.accountService)
+                  ? SignInForm(authService: DiContainer.authService)
                   : SignUpForm(
                       coursePlanService: DiContainer.coursePlanService,
-                      accountService: DiContainer.accountService,
+                      authService: DiContainer.authService,
                     ),
             ),
             Row(

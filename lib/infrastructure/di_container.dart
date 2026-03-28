@@ -19,15 +19,15 @@ class DiContainer {
   static void init() {
     storageService = SecureStorageService();
     tokenService = TokenService(storageService: storageService);
-    authService = AuthService(tokenService: tokenService);
+    authService = AuthService(
+      tokenService: tokenService,
+      storageService: storageService,
+      apiClient: apiClient,
+    );
     apiClient = ApiClient(tokenService: tokenService);
 
     attendanceService = AttendanceService(apiClient: apiClient);
     coursePlanService = CoursePlanService();
-    accountService = AccountService(
-      apiClient: apiClient,
-      tokenService: tokenService,
-      storageService: storageService,
-    );
+    accountService = AccountService(apiClient: apiClient);
   }
 }
