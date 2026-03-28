@@ -1,3 +1,5 @@
+import 'package:hadhri/infrastructure/interceptors/request_interceptor.dart';
+import 'package:hadhri/infrastructure/interceptors/response_interceptor.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:hadhri/infrastructure/services/attendance_service.dart';
 import 'package:hadhri/infrastructure/services/auth_service.dart';
@@ -11,6 +13,8 @@ class DiContainer {
   static late final AuthService authService;
   static late final HttpClient httpClient;
   static late final TokenService tokenService;
+  static late final RequestInterceptor _requestInterceptor;
+  static late final ResponseInterceptor _responseInterceptor;
 
   static late final AttendanceService attendanceService;
   static late final CoursePlanService coursePlanService;
@@ -19,7 +23,18 @@ class DiContainer {
   static void init() {
     storageService = SecureStorageService();
     tokenService = TokenService(storageService: storageService);
-    httpClient = HttpClient(tokenService: tokenService);
+
+    _requestInterceptor = RequestInterceptor(tokenService: tokenService);
+    _responseInterceptor = ResponseInterceptor(
+      tokenService: tokenService,
+      storageService: storageService,
+    );
+
+    httpClient = HttpClient(
+      requestInterceptor: _requestInterceptor,
+      responseInterceptor: _responseInterceptor,
+    );
+    
     authService = AuthService(
       tokenService: tokenService,
       storageService: storageService,
