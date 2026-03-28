@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/infrastructure/responses/get_student_details_response.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:hadhri/infrastructure/services/attendance_service.dart';
+import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
 import 'package:slider_button/slider_button.dart';
+
+import '../account/page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -11,11 +15,13 @@ class HomePage extends StatefulWidget {
     required this.attendanceService,
     required this.accountService,
     required this.storageService,
+    required this.authService,
   });
 
   final AttendanceService attendanceService;
   final AccountService accountService;
   final SecureStorageService storageService;
+  final AuthService authService;
 
   // TODO: Store this in a base class.
   static final String route = '/home';
@@ -73,9 +79,15 @@ class _HomePageState extends State<HomePage> {
                     useGlassEffect: true,
                     action: _logAttendance,
                   ),
+                  // TODO: Move this into a different component after testing.
                   ElevatedButton(
                     onPressed: _getStudentDetails,
-                    child: Text('Load student details.'),
+                    child: Text('Load student details'),
+                  ),
+                  // TODO: Move this into a different component after testing.
+                  ElevatedButton(
+                    onPressed: _signOut,
+                    child: Text('Sign out'),
                   ),
                 ],
               ),
@@ -121,7 +133,10 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final vs = await widget.accountService.getStudentDetails(studentId);
+    final BaseViewState<GetStudentDetailsResponse> vs = await widget.accountService
+        .getStudentDetails(studentId);
+
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 
@@ -131,5 +146,13 @@ class _HomePageState extends State<HomePage> {
         _studentDetails = vs.data!;
       });
     }
+  }
+
+  Future<void> _signOut() async {
+    await widget.authService.signOut();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacementNamed(context, AccountPage.route);
   }
 }

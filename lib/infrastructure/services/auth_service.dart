@@ -121,4 +121,8 @@ class AuthService extends BaseService {
     }
     return true;
   }
+
+  Future<void> signOut() async {
+    await _tokenService.deleteToken();
+  }
 }

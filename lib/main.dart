@@ -32,6 +32,7 @@ class MainApp extends StatelessWidget {
           attendanceService: DiContainer.attendanceService,
           accountService: DiContainer.accountService,
           storageService: DiContainer.storageService,
+          authService: DiContainer.authService,
         ),
       },
     );
