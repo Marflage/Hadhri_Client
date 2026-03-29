@@ -7,6 +7,7 @@ import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
 import 'package:slider_button/slider_button.dart';
 
+import '../../infrastructure/enums/storage_keys.dart';
 import '../account/page.dart';
 
 class HomePage extends StatefulWidget {
@@ -96,15 +97,36 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<bool> _logAttendance() async {
-    // TODO: Send request to mark attendance.
-    const int studentId = 8;
-    final vm = await widget.attendanceService.logAttendance(studentId);
+    String? studentIdString = await widget.storageService.read(StorageKeys.studentId.name);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.message!)));
+    if (!mounted) return false;
+
+    if (studentIdString?.isEmpty == true) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to retrieve student ID.')));
+      return false;
     }
 
-    // TODO: Store the token in shared prefs.
+    int? studentId = int.tryParse(studentIdString!);
+
+    if (studentId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to retrieve student ID.')));
+      return false;
+    }
+
+    final BaseViewState<dynamic> vs = await widget.attendanceService.logAttendance(studentId);
+
+    if (!mounted) return false;
+
+    if (vs.error?.isNotEmpty == true) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
+      return false;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 
     return true;
   }
@@ -112,8 +134,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _getStudentDetails() async {
     setState(() => _isLoadingStudentDetails = true);
 
-    // TODO: Fetch student ID from secure storage and use that to request for student details.
-    String? studentIdString = await widget.storageService.read('studentId');
+    String? studentIdString = await widget.storageService.read(StorageKeys.studentId.name);
 
     if (!mounted) return;
 

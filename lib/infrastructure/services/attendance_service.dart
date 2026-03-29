@@ -21,9 +21,10 @@ class AttendanceService extends BaseService {
       final json = jsonDecode(rawResponse.body);
       final response = ApiResponse.fromJson(json);
 
-      if (response.error != null) {
-        vs.message = response.error!;
-      } else if (response.message != null) {
+      if (response.error?.isNotEmpty == true) {
+        vs.error = response.error!;
+        return vs;
+      } else if (response.message?.isNotEmpty == true) {
         vs.message = response.message!;
       }
     } catch (e) {

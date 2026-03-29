@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadhri/features/home/page.dart';
 import 'package:hadhri/infrastructure/di_container.dart';
+import 'package:hadhri/infrastructure/services/navigator_service.dart';
 
 import 'features/account/page.dart';
 
@@ -24,6 +25,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: NavigatorService.navigatorKey,
       initialRoute: _isUserLoggedIn ? HomePage.route : AccountPage.route,
       routes: {
         AccountPage.route: (context) =>

@@ -21,7 +21,7 @@ class ResponseInterceptor {
       await _tokenService.deleteToken();
 
       // TODO: Use an enum/const for storage keys.
-      await _storageService.delete(StorageKeys.studentId.toString());
+      await _storageService.delete(StorageKeys.studentId.name);
 
       NavigatorService.redirectToAuthPage();
     }
