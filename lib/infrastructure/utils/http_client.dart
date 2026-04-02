@@ -17,7 +17,7 @@ class HttpClient {
 
   static const _baseUrl = 'http://localhost:8080/';
 
-  Future<http.Response> get(String urlPath, Map<String, String> queryParams) async {
+  Future<http.Response> get(String urlPath, {Map<String, String> queryParams = const {}}) async {
     Uri uri = Uri.parse('$_baseUrl$urlPath').replace(queryParameters: queryParams);
 
     final Map<String, String> headers = await _requestInterceptor.addAuthorizationHeader({});

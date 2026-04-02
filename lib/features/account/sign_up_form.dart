@@ -118,7 +118,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ),
                   ElevatedButton(
                     onPressed: _onSubmit,
-                    child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Register'),
+                    child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Sign up'),
                   ),
                 ],
               ),
