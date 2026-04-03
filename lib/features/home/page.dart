@@ -153,6 +153,11 @@ class _HomePageState extends State<HomePage> {
 
     if (!mounted) return;
 
+    if (vs.error?.isNotEmpty == true) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 
     if (vs.data != null) {
@@ -175,18 +180,21 @@ class _HomePageState extends State<HomePage> {
     try {
       final vs = await widget.accountService.getStudentEnrollmentDetails();
 
+      if (!mounted) return;
+
+      if (vs.error?.isNotEmpty == true) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
+        return;
+      }
+
       setState(() {
         _studentEnrollmentDetails = vs.data!;
         _isLoadingStudentEnrollmentDetails = false;
       });
 
-      if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
     } catch (e) {
       // setState(() => _isLoadingStudentEnrollmentDetails = false);
-
-      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
