@@ -18,6 +18,8 @@ class SignInForm extends StatefulWidget {
 }
 
 class _SignInFormState extends State<SignInForm> {
+  bool _isPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -34,12 +36,17 @@ class _SignInFormState extends State<SignInForm> {
             validator: _onEmailValidated,
             onSaved: _onEmailSaved,
           ),
-          // SizedBox(height: 10),
-          // TODO: Add button to toggle password visibility.
           TextFormField(
             keyboardType: .visiblePassword,
-            decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
-            obscureText: true,
+            obscureText: !_isPasswordVisible,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+              ),
+            ),
             validator: _onPasswordValidated,
             onSaved: _onPasswordSaved,
           ),
