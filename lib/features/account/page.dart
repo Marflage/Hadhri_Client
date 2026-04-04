@@ -27,17 +27,25 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     // TODO: Analyze if this Scaffold can be removed safely.
     return Scaffold(
+      // resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
+            // Placeholder(
+            //   fallbackHeight: 400,
+            //   fallbackWidth: 200,
+            // ),
             Expanded(
-              child: _showSignInForm
-                  // TODO: Remove the usage of DiContainer in the UI components.
-                  ? SignInForm(authService: DiContainer.authService)
-                  : SignUpForm(
-                      coursePlanService: DiContainer.coursePlanService,
-                      authService: DiContainer.authService,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: _showSignInForm
+                    // TODO: Remove the usage of DiContainer in the UI components.
+                    ? SignInForm(authService: DiContainer.authService)
+                    : SignUpForm(
+                        coursePlanService: DiContainer.coursePlanService,
+                        authService: DiContainer.authService,
+                      ),
+              ),
             ),
             Row(
               mainAxisAlignment: .center,

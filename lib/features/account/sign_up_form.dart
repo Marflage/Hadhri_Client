@@ -42,85 +42,118 @@ class _SignUpFormState extends State<SignUpForm> {
           : _isDataAvailable
           ? Form(
               key: _formKey,
-              child: Column(
-                children: [
-                  // TODO: Validate all the fields.
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'First Name'),
-                    validator: _validateFirstName,
-                    onSaved: _onFirstNameSaved,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Last Name'),
-                    validator: _validateLastName,
-                    onSaved: _onLastNameSaved,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Email'),
-                    validator: _validateEmail,
-                    onSaved: _onEmailSaved,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Phone Number'),
-                    validator: _validatePhoneNumber,
-                    onSaved: _onPhoneNumberSaved,
-                  ),
-                  DropdownMenuFormField(
-                    initialSelection: _selectedCourse,
-                    label: Text('Course'),
-                    dropdownMenuEntries: _courseDropdownEntries,
-                    onSelected: _onCourseSelected,
-                  ),
-                  DropdownMenuFormField(
-                    controller: _classScheduleController,
-                    enabled: _classScheduleDropdownEntries.isNotEmpty,
-                    initialSelection: _selectedClassSchedule,
-                    label: Text('Class Schedule'),
-                    dropdownMenuEntries: _classScheduleDropdownEntries,
-                    onSelected: _onClassScheduleSelected,
-                  ),
-                  DropdownMenuFormField(
-                    controller: _classSessionController,
-                    enabled: _classSessionDropdownEntries.isNotEmpty,
-                    initialSelection: _selectedClassSession,
-                    label: Text('Class Session'),
-                    dropdownMenuEntries: _classSessionDropdownEntries,
-                    onSelected: _onClassSessionSelected,
-                  ),
-                  DropdownMenuFormField(
-                    controller: _semesterController,
-                    enabled: _semesterDropdownEntries.isNotEmpty,
-                    initialSelection: _selectedSemester,
-                    label: Text('Semester'),
-                    dropdownMenuEntries: _semesterDropdownEntries,
-                    onSelected: _onSemesterSelected,
-                  ),
-                  // TODO: Obscure the text.
-                  // TODO: Show icon to toggle password visibility.
-                  // TODO: Create a unified component for password combining with confirm password.
-                  TextFormField(
-                    obscureText: _isPasswordVisible ? false : true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                        icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+              child: SingleChildScrollView(
+                child: Column(
+                  spacing: 10.0,
+                  crossAxisAlignment: .stretch,
+                  children: [
+                    // First name
+                    TextFormField(
+                      keyboardType: .name,
+                      decoration: InputDecoration(
+                        labelText: 'First Name',
+                        border: OutlineInputBorder(),
                       ),
+                      validator: _validateFirstName,
+                      onSaved: _onFirstNameSaved,
                     ),
-                    validator: _validatePassword,
-                    onSaved: _onPasswordSaved,
-                  ),
-                  // TODO: Match the passwords.
-                  TextFormField(
-                    obscureText: _isPasswordVisible ? false : true,
-                    decoration: InputDecoration(labelText: 'Confirm Password'),
-                    validator: _validateConfirmPassword,
-                  ),
-                  ElevatedButton(
-                    onPressed: _onSubmit,
-                    child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Sign up'),
-                  ),
-                ],
+                    // Last name
+                    TextFormField(
+                      keyboardType: .name,
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validateLastName,
+                      onSaved: _onLastNameSaved,
+                    ),
+                    // Email
+                    TextFormField(
+                      keyboardType: .emailAddress,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validateEmail,
+                      onSaved: _onEmailSaved,
+                    ),
+                    // Phone number
+                    TextFormField(
+                      keyboardType: .phone,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validatePhoneNumber,
+                      onSaved: _onPhoneNumberSaved,
+                    ),
+                    // Dropdowns
+                    Column(
+                      crossAxisAlignment: .stretch,
+                      children: [
+                        DropdownMenuFormField(
+                          initialSelection: _selectedCourse,
+                          label: Text('Course'),
+                          dropdownMenuEntries: _courseDropdownEntries,
+                          onSelected: _onCourseSelected,
+                        ),
+                        DropdownMenuFormField(
+                          controller: _classScheduleController,
+                          enabled: _classScheduleDropdownEntries.isNotEmpty,
+                          initialSelection: _selectedClassSchedule,
+                          label: Text('Class Schedule'),
+                          dropdownMenuEntries: _classScheduleDropdownEntries,
+                          onSelected: _onClassScheduleSelected,
+                        ),
+                        DropdownMenuFormField(
+                          controller: _classSessionController,
+                          enabled: _classSessionDropdownEntries.isNotEmpty,
+                          initialSelection: _selectedClassSession,
+                          label: Text('Class Session'),
+                          dropdownMenuEntries: _classSessionDropdownEntries,
+                          onSelected: _onClassSessionSelected,
+                        ),
+                        DropdownMenuFormField(
+                          controller: _semesterController,
+                          enabled: _semesterDropdownEntries.isNotEmpty,
+                          initialSelection: _selectedSemester,
+                          label: Text('Semester'),
+                          dropdownMenuEntries: _semesterDropdownEntries,
+                          onSelected: _onSemesterSelected,
+                        ),
+                      ],
+                    ),
+                    // TODO: Create a unified component for password combining with confirm password.
+                    // Password
+                    TextFormField(
+                      enableSuggestions: false,
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                          icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                        ),
+                      ),
+                      validator: _validatePassword,
+                      onSaved: _onPasswordSaved,
+                    ),
+                    // Confirm password
+                    TextFormField(
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validateConfirmPassword,
+                    ),
+                    FilledButton(
+                      onPressed: _onSubmit,
+                      child: _isLoading ? CircularProgressIndicator.adaptive() : Text('Sign up'),
+                    ),
+                  ],
+                ),
               ),
             )
           : Center(

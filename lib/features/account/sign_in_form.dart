@@ -23,21 +23,27 @@ class _SignInFormState extends State<SignInForm> {
     return Form(
       key: _formKey,
       child: Column(
+        spacing: 10.0,
+        mainAxisAlignment: .center,
+        crossAxisAlignment: .stretch,
         children: [
           // TODO: Move to next input field after pressing the return or the tab key on mobile devices as well.
           TextFormField(
-            decoration: InputDecoration(labelText: 'Email'),
+            keyboardType: .emailAddress,
+            decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
             validator: _onEmailValidated,
             onSaved: _onEmailSaved,
           ),
+          // SizedBox(height: 10),
           // TODO: Add button to toggle password visibility.
           TextFormField(
-            decoration: InputDecoration(labelText: 'Password'),
+            keyboardType: .visiblePassword,
+            decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
             obscureText: true,
             validator: _onPasswordValidated,
             onSaved: _onPasswordSaved,
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: _onFormSubmitted,
             child: _isLoading
                 ? Center(child: CircularProgressIndicator.adaptive())
