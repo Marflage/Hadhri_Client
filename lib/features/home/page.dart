@@ -8,6 +8,7 @@ import 'package:hadhri/infrastructure/services/account_service.dart';
 import 'package:hadhri/infrastructure/services/attendance_service.dart';
 import 'package:hadhri/infrastructure/services/auth_service.dart';
 import 'package:hadhri/infrastructure/services/secure_storage_service.dart';
+import 'package:pullex/pullex.dart';
 import 'package:slider_button/slider_button.dart';
 
 import '../../infrastructure/enums/storage_keys.dart';
@@ -38,8 +39,10 @@ class _HomePageState extends State<HomePage> {
   static const double _iconSize = 45.0;
   static const double _buttonSize = 65.0;
 
-  late final GetStudentDetailsResponse _studentDetails;
-  late final GetStudentEnrollmentDetailsResponse _studentEnrollmentDetails;
+  final _refreshController = RefreshController();
+
+  GetStudentDetailsResponse? _studentDetails;
+  GetStudentEnrollmentDetailsResponse? _studentEnrollmentDetails;
 
   bool _isLoadingData = true;
   bool _isAttendanceMarked = false;
@@ -61,61 +64,66 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: _isLoadingData
-            ? Center(child: CircularProgressIndicator.adaptive())
-            : Center(
-                child: Column(
-                  mainAxisAlignment: .spaceBetween,
-                  children: [
-                    Column(
-                      mainAxisAlignment: .spaceBetween,
-                      children: [
-                        Greeting(
-                          firstName: _studentDetails.firstName,
-                          lastName: _studentDetails.lastName,
-                        ),
-                        EnrolledCoursePlan(
-                          courseName: _studentEnrollmentDetails.courseName,
-                          classScheduleName: _studentEnrollmentDetails.classScheduleName,
-                          classSessionName: _studentEnrollmentDetails.classSessionName,
-                          semester: _studentEnrollmentDetails.semester,
-                        ),
-                      ],
-                    ),
-                    // Text('Date'),
-                    Placeholder(
-                      fallbackHeight: 200,
-                      fallbackWidth: 200,
-                      child: Text('Attendance record'),
-                    ),
-                    // Spacer(),
-                    _isAttendanceMarked
-                        ? Text('Your attendance has been logged.')
-                        : SliderButton(
-                            icon: Icon(
-                              Icons.check_rounded,
-                              color: Colors.green,
-                              size: _iconSize,
-                            ),
-                            buttonSize: _buttonSize,
-                            disable: !_isClassSessionNow(),
-                            // disable: true,
-                            label: Text('Log your attendance'),
-                            shimmer: true,
-                            vibrationFlag: true,
-                            useGlassEffect: true,
-                            action: _logAttendance,
-                            // action: () async => false,
+      body: PullexRefresh(
+        controller: _refreshController,
+        header: BaseHeader(),
+        onRefresh: _onInit,
+        child: SafeArea(
+          child: _isLoadingData
+              ? Center(child: CircularProgressIndicator.adaptive())
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: .spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisAlignment: .spaceBetween,
+                        children: [
+                          Greeting(
+                            firstName: _studentDetails!.firstName,
+                            lastName: _studentDetails!.lastName,
                           ),
-                    // TODO: Move this into a different component after testing.
-                    // ElevatedButton(
-                    //   onPressed: _getStudentDetails,
-                    //   child: Text('Load student details'),
-                    // ),
-                  ],
+                          EnrolledCoursePlan(
+                            courseName: _studentEnrollmentDetails!.courseName,
+                            classScheduleName: _studentEnrollmentDetails!.classScheduleName,
+                            classSessionName: _studentEnrollmentDetails!.classSessionName,
+                            semester: _studentEnrollmentDetails!.semester,
+                          ),
+                        ],
+                      ),
+                      // Text('Date'),
+                      Placeholder(
+                        fallbackHeight: 200,
+                        fallbackWidth: 200,
+                        child: Text('Attendance record'),
+                      ),
+                      // Spacer(),
+                      _isAttendanceMarked
+                          ? Text('Your attendance has been logged.')
+                          : SliderButton(
+                              icon: Icon(
+                                Icons.check_rounded,
+                                color: Colors.green,
+                                size: _iconSize,
+                              ),
+                              buttonSize: _buttonSize,
+                              disable: !_isClassSessionNow(),
+                              // disable: true,
+                              label: Text('Log your attendance'),
+                              shimmer: true,
+                              vibrationFlag: true,
+                              useGlassEffect: true,
+                              action: _logAttendance,
+                              // action: () async => false,
+                            ),
+                      // TODO: Move this into a different component after testing.
+                      // ElevatedButton(
+                      //   onPressed: _getStudentDetails,
+                      //   child: Text('Load student details'),
+                      // ),
+                    ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }
@@ -146,6 +154,8 @@ class _HomePageState extends State<HomePage> {
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
+
+    _refreshController.refreshCompleted();
   }
 
   Future<GetStudentDetailsResponse> _getCurrentStudentDetails() async {
@@ -173,18 +183,18 @@ class _HomePageState extends State<HomePage> {
       now.year,
       now.month,
       now.day,
-      _studentEnrollmentDetails.classSessionStartTime.hour,
-      _studentEnrollmentDetails.classSessionStartTime.minute,
-      _studentEnrollmentDetails.classSessionStartTime.second,
+      _studentEnrollmentDetails!.classSessionStartTime.hour,
+      _studentEnrollmentDetails!.classSessionStartTime.minute,
+      _studentEnrollmentDetails!.classSessionStartTime.second,
     );
 
     final DateTime classSessionEndTime = DateTime(
       now.year,
       now.month,
       now.day,
-      _studentEnrollmentDetails.classSessionEndTime.hour,
-      _studentEnrollmentDetails.classSessionEndTime.minute,
-      _studentEnrollmentDetails.classSessionEndTime.second,
+      _studentEnrollmentDetails!.classSessionEndTime.hour,
+      _studentEnrollmentDetails!.classSessionEndTime.minute,
+      _studentEnrollmentDetails!.classSessionEndTime.second,
     );
 
     if (now.isAfter(classSessionStartTime) && now.isBefore(classSessionEndTime)) {
@@ -243,5 +253,11 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
 
     Navigator.pushReplacementNamed(context, AccountPage.route);
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 }
