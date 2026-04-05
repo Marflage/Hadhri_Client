@@ -29,6 +29,7 @@ class AccountService extends BaseService {
             parseJsonData: (json) => GetStudentDetailsResponse.fromJson(json['data']),
           );
 
+      // TODO: Throw an exception instead.
       if (response.error?.isNotEmpty == true) {
         vs.error = response.error!;
         return vs;

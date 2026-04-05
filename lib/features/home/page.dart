@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadhri/domain/view_models/base_view_model.dart';
+import 'package:hadhri/features/home/components/enrolled_course_plan.dart';
+import 'package:hadhri/features/home/components/greeting.dart';
 import 'package:hadhri/infrastructure/responses/get_student_details_response.dart';
 import 'package:hadhri/infrastructure/responses/get_student_enrollment_details_response.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
@@ -39,8 +41,8 @@ class _HomePageState extends State<HomePage> {
   late final GetStudentDetailsResponse _studentDetails;
   late final GetStudentEnrollmentDetailsResponse _studentEnrollmentDetails;
 
-  bool _isLoadingStudentDetails = true;
-  bool _isLoadingStudentEnrollmentDetails = true;
+  bool _isLoadingData = true;
+  bool _isAttendanceMarked = false;
 
   @override
   void initState() {
@@ -51,59 +53,145 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: _signOut,
+            icon: Icon(Icons.logout_rounded),
+          ),
+        ],
+      ),
       body: SafeArea(
-        child: _isLoadingStudentDetails || _isLoadingStudentEnrollmentDetails
+        child: _isLoadingData
             ? Center(child: CircularProgressIndicator.adaptive())
-            : Column(
-                children: [
-                  Text('السلام عليكم'),
-                  Text('${_studentDetails.firstName} ${_studentDetails.lastName}'),
-                  Text('You are enrolled in ${_studentEnrollmentDetails.courseName}'),
-                  Text('Class schedule: ${_studentEnrollmentDetails.classScheduleName}'),
-                  Text('Class session: ${_studentEnrollmentDetails.classSessionName}'),
-                  Text('Semester: ${_studentEnrollmentDetails.semester}'),
-                  // Text('Date'),
-                  Placeholder(
-                    fallbackHeight: 200,
-                    fallbackWidth: 200,
-                    child: Text('Attendance record'),
-                  ),
-                  SliderButton(
-                    icon: Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: _iconSize,
+            : Center(
+                child: Column(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisAlignment: .spaceBetween,
+                      children: [
+                        Greeting(
+                          firstName: _studentDetails.firstName,
+                          lastName: _studentDetails.lastName,
+                        ),
+                        EnrolledCoursePlan(
+                          courseName: _studentEnrollmentDetails.courseName,
+                          classScheduleName: _studentEnrollmentDetails.classScheduleName,
+                          classSessionName: _studentEnrollmentDetails.classSessionName,
+                          semester: _studentEnrollmentDetails.semester,
+                        ),
+                      ],
                     ),
-                    buttonColor: Colors.green,
-                    baseColor: Colors.purple,
-                    highlightedColor: Colors.yellow,
-                    buttonSize: _buttonSize,
-                    // disable: true,
-                    label: Text('Mark Attendance'),
-                    shimmer: false,
-                    vibrationFlag: true,
-                    useGlassEffect: true,
-                    action: _logAttendance,
-                  ),
-                  // TODO: Move this into a different component after testing.
-                  // ElevatedButton(
-                  //   onPressed: _getStudentDetails,
-                  //   child: Text('Load student details'),
-                  // ),
-                  // TODO: Move this into a different component after testing.
-                  ElevatedButton(
-                    onPressed: _signOut,
-                    child: Text('Sign out'),
-                  ),
-                ],
+                    // Text('Date'),
+                    Placeholder(
+                      fallbackHeight: 200,
+                      fallbackWidth: 200,
+                      child: Text('Attendance record'),
+                    ),
+                    // Spacer(),
+                    _isAttendanceMarked
+                        ? Text('Your attendance has been logged.')
+                        : SliderButton(
+                            icon: Icon(
+                              Icons.check_rounded,
+                              color: Colors.green,
+                              size: _iconSize,
+                            ),
+                            buttonSize: _buttonSize,
+                            disable: !_isClassSessionNow(),
+                            // disable: true,
+                            label: Text('Log your attendance'),
+                            shimmer: true,
+                            vibrationFlag: true,
+                            useGlassEffect: true,
+                            action: _logAttendance,
+                            // action: () async => false,
+                          ),
+                    // TODO: Move this into a different component after testing.
+                    // ElevatedButton(
+                    //   onPressed: _getStudentDetails,
+                    //   child: Text('Load student details'),
+                    // ),
+                  ],
+                ),
               ),
       ),
     );
   }
 
   Future<void> _onInit() async {
-    _getCurrentStudentDetails();
-    _getCurrentStudentEnrollmentDetails();
+    try {
+      GetStudentDetailsResponse studentDetails = await _getCurrentStudentDetails();
+      GetStudentEnrollmentDetailsResponse enrollmentDetails =
+          await _getCurrentStudentEnrollmentDetails();
+      bool isAttendanceMarked = await _isAttendanceLogged();
+
+      if (!mounted) return;
+
+      setState(() {
+        _studentDetails = studentDetails;
+        _studentEnrollmentDetails = enrollmentDetails;
+        _isAttendanceMarked = isAttendanceMarked;
+        _isLoadingData = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Successfully loaded initial data.')));
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isLoadingData = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  Future<GetStudentDetailsResponse> _getCurrentStudentDetails() async {
+    final vs = await widget.accountService.getStudentDetails();
+    if (vs.error?.isNotEmpty == true) throw Exception(vs.error);
+    return vs.data!;
+  }
+
+  Future<GetStudentEnrollmentDetailsResponse> _getCurrentStudentEnrollmentDetails() async {
+    final vs = await widget.accountService.getStudentEnrollmentDetails();
+    if (vs.error?.isNotEmpty == true) throw Exception(vs.error);
+    return vs.data!;
+  }
+
+  Future<bool> _isAttendanceLogged() async {
+    final BaseViewState<bool> vs = await widget.attendanceService.isAttendanceLogged();
+    if (vs.error?.isNotEmpty == true) throw Exception(vs.error);
+    return vs.data!;
+  }
+
+  bool _isClassSessionNow() {
+    final DateTime now = DateTime.now();
+
+    final DateTime classSessionStartTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      _studentEnrollmentDetails.classSessionStartTime.hour,
+      _studentEnrollmentDetails.classSessionStartTime.minute,
+      _studentEnrollmentDetails.classSessionStartTime.second,
+    );
+
+    final DateTime classSessionEndTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      _studentEnrollmentDetails.classSessionEndTime.hour,
+      _studentEnrollmentDetails.classSessionEndTime.minute,
+      _studentEnrollmentDetails.classSessionEndTime.second,
+    );
+
+    if (now.isAfter(classSessionStartTime) && now.isBefore(classSessionEndTime)) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<bool> _logAttendance() async {
@@ -120,7 +208,9 @@ class _HomePageState extends State<HomePage> {
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
 
-    return true;
+    setState(() => _isAttendanceMarked = true);
+
+    return false;
   }
 
   Future<int> _retrieveStudentIdFromStorage() async {
@@ -147,56 +237,11 @@ class _HomePageState extends State<HomePage> {
     return studentId;
   }
 
-  Future<void> _getCurrentStudentDetails() async {
-    final BaseViewState<GetStudentDetailsResponse> vs = await widget.accountService
-        .getStudentDetails();
-
-    if (!mounted) return;
-
-    if (vs.error?.isNotEmpty == true) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
-
-    if (vs.data != null) {
-      setState(() {
-        _isLoadingStudentDetails = false;
-        _studentDetails = vs.data!;
-      });
-    }
-  }
-
   Future<void> _signOut() async {
     await widget.authService.signOut();
 
     if (!mounted) return;
 
     Navigator.pushReplacementNamed(context, AccountPage.route);
-  }
-
-  Future<void> _getCurrentStudentEnrollmentDetails() async {
-    try {
-      final vs = await widget.accountService.getStudentEnrollmentDetails();
-
-      if (!mounted) return;
-
-      if (vs.error?.isNotEmpty == true) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.error!)));
-        return;
-      }
-
-      setState(() {
-        _studentEnrollmentDetails = vs.data!;
-        _isLoadingStudentEnrollmentDetails = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vs.message!)));
-    } catch (e) {
-      // setState(() => _isLoadingStudentEnrollmentDetails = false);
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
   }
 }

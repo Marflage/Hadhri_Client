@@ -20,7 +20,6 @@ class ResponseInterceptor {
     if (statusCode == HttpStatus.unauthorized) {
       await _tokenService.deleteToken();
 
-      // TODO: Use an enum/const for storage keys.
       await _storageService.delete(StorageKeys.studentId.name);
 
       NavigatorService.redirectToAuthPage();

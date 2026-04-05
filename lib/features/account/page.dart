@@ -27,7 +27,6 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     // TODO: Analyze if this Scaffold can be removed safely.
     return Scaffold(
-      // resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
