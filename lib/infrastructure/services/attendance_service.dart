@@ -11,12 +11,11 @@ class AttendanceService extends BaseService {
 
   Future<BaseViewState> logAttendance(int studentId) async {
     final urlPath = 'log-attendance';
-    final Map<String, String> queryParams = {'studentId': studentId.toString()};
-    final BaseViewState<dynamic> vs = BaseViewState(message: '');
+    final BaseViewState vs = BaseViewState();
 
     // TODO: Why should this code be surrounded with a try-catch block?
     try {
-      final Response rawResponse = await httpClient.post(urlPath, queryParams: queryParams);
+      final Response rawResponse = await httpClient.post(urlPath);
 
       final json = jsonDecode(rawResponse.body);
       final response = ApiResponse.fromJson(json);
