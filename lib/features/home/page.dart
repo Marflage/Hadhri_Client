@@ -145,8 +145,11 @@ class _HomePageState extends State<HomePage> {
       GetStudentEnrollmentDetailsResponse enrollmentDetails =
           await _getCurrentStudentEnrollmentDetails();
       bool isAttendanceMarked = await _isAttendanceLogged();
-      bool isLate = _shouldLogLate(enrollmentDetails);
-      bool isClassSessionNow = _isClassSessionNow();
+      bool isLate = _shouldLogLate(enrollmentDetails.classSessionStartTime);
+      bool isClassSessionNow = _isClassSessionNow(
+        enrollmentDetails.classSessionStartTime,
+        enrollmentDetails.classSessionEndTime,
+      );
 
       if (!mounted) return;
 
@@ -191,26 +194,12 @@ class _HomePageState extends State<HomePage> {
     return vs.data!;
   }
 
-  bool _isClassSessionNow() {
+  bool _isClassSessionNow(DateTime startTime, DateTime endTme) {
     final DateTime now = DateTime.now();
 
-    final DateTime classSessionStartTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      _studentEnrollmentDetails!.classSessionStartTime.hour,
-      _studentEnrollmentDetails!.classSessionStartTime.minute,
-      _studentEnrollmentDetails!.classSessionStartTime.second,
-    );
+    final DateTime classSessionStartTime = startTime.withTodayDate();
 
-    final DateTime classSessionEndTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      _studentEnrollmentDetails!.classSessionEndTime.hour,
-      _studentEnrollmentDetails!.classSessionEndTime.minute,
-      _studentEnrollmentDetails!.classSessionEndTime.second,
-    );
+    final DateTime classSessionEndTime = endTme.withTodayDate();
 
     if (now.isAfter(classSessionStartTime) && now.isBefore(classSessionEndTime)) {
       return true;
@@ -219,12 +208,12 @@ class _HomePageState extends State<HomePage> {
     return false;
   }
 
-  bool _shouldLogLate(GetStudentEnrollmentDetailsResponse enrollmentDetails) {
+  bool _shouldLogLate(DateTime classSessionStartTime) {
     // TODO: Make the grace period configurable and fetch it from the backend.
     // TODO: Troubleshoot why this method is being called twice.
     final Duration gracePeriod = Duration(minutes: 30);
 
-    final DateTime lateThreshold = enrollmentDetails.classSessionStartTime.withTodayDate().add(
+    final DateTime lateThreshold = classSessionStartTime.withTodayDate().add(
       gracePeriod,
     );
 
