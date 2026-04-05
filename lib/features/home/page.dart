@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hadhri/domain/view_models/base_view_model.dart';
 import 'package:hadhri/features/home/components/enrolled_course_plan.dart';
 import 'package:hadhri/features/home/components/greeting.dart';
+import 'package:hadhri/features/utils/extension_methods.dart';
 import 'package:hadhri/infrastructure/responses/get_student_details_response.dart';
 import 'package:hadhri/infrastructure/responses/get_student_enrollment_details_response.dart';
 import 'package:hadhri/infrastructure/services/account_service.dart';
@@ -43,6 +44,8 @@ class _HomePageState extends State<HomePage> {
 
   GetStudentDetailsResponse? _studentDetails;
   GetStudentEnrollmentDetailsResponse? _studentEnrollmentDetails;
+  bool _isLate = false;
+  bool _hasClassSessionStarted = false;
 
   bool _isLoadingData = true;
   bool _isAttendanceMarked = false;
@@ -100,15 +103,23 @@ class _HomePageState extends State<HomePage> {
                       _isAttendanceMarked
                           ? Text('Your attendance has been logged.')
                           : SliderButton(
-                              icon: Icon(
-                                Icons.check_rounded,
-                                color: Colors.green,
-                                size: _iconSize,
+                              label: Text(
+                                _hasClassSessionStarted
+                                    ? 'Log your attendance'
+                                    : 'Class session has not started.',
                               ),
+                              icon: _hasClassSessionStarted
+                                  ? Icon(
+                                      _isLate
+                                          ? Icons.running_with_errors_rounded
+                                          : Icons.check_rounded,
+                                      color: _isLate ? Colors.red : Colors.green,
+                                      size: _iconSize,
+                                    )
+                                  : null,
                               buttonSize: _buttonSize,
-                              disable: !_isClassSessionNow(),
+                              disable: !_hasClassSessionStarted,
                               // disable: true,
-                              label: Text('Log your attendance'),
                               shimmer: true,
                               vibrationFlag: true,
                               useGlassEffect: true,
@@ -134,6 +145,8 @@ class _HomePageState extends State<HomePage> {
       GetStudentEnrollmentDetailsResponse enrollmentDetails =
           await _getCurrentStudentEnrollmentDetails();
       bool isAttendanceMarked = await _isAttendanceLogged();
+      bool isLate = _shouldLogLate(enrollmentDetails);
+      bool isClassSessionNow = _isClassSessionNow();
 
       if (!mounted) return;
 
@@ -142,6 +155,8 @@ class _HomePageState extends State<HomePage> {
         _studentEnrollmentDetails = enrollmentDetails;
         _isAttendanceMarked = isAttendanceMarked;
         _isLoadingData = false;
+        _isLate = isLate;
+        _hasClassSessionStarted = isClassSessionNow;
       });
 
       ScaffoldMessenger.of(
@@ -200,6 +215,20 @@ class _HomePageState extends State<HomePage> {
     if (now.isAfter(classSessionStartTime) && now.isBefore(classSessionEndTime)) {
       return true;
     }
+
+    return false;
+  }
+
+  bool _shouldLogLate(GetStudentEnrollmentDetailsResponse enrollmentDetails) {
+    // TODO: Make the grace period configurable and fetch it from the backend.
+    // TODO: Troubleshoot why this method is being called twice.
+    final Duration gracePeriod = Duration(minutes: 30);
+
+    final DateTime lateThreshold = enrollmentDetails.classSessionStartTime.withTodayDate().add(
+      gracePeriod,
+    );
+
+    if (DateTime.now().isAfter(lateThreshold)) return true;
 
     return false;
   }
