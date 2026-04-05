@@ -13,7 +13,7 @@ class TokenService {
     final String token = await _getToken();
 
     try {
-      await _isTokenValid(token);
+      _checkTokenValidity(token);
     } catch (e) {
       rethrow;
     }
@@ -39,18 +39,11 @@ class TokenService {
     return token;
   }
 
-  Future<bool> _isTokenValid(String token) async {
-    try {
-      final jwt = JWT.decode(token);
+  void _checkTokenValidity(String token) {
+    final jwt = JWT.decode(token);
 
-      // TODO: Create a const for this magic string.
-      DateTime expiry = DateTime.fromMillisecondsSinceEpoch(jwt.payload['exp']);
+    DateTime expiry = DateTime.fromMillisecondsSinceEpoch(jwt.payload['exp'] * 1000);
 
-      if (expiry.isBefore(DateTime.now())) throw Exception('Token expired.');
-
-      return true;
-    } catch (e) {
-      return false;
-    }
+    if (expiry.isBefore(DateTime.now().toUtc())) throw Exception('Token expired.');
   }
 }
