@@ -11,6 +11,10 @@ dependencies:
     sdk: flutter
 
   http: ^1.6.0
+  pullex: ^1.0.4
+  slider_button: ^3.1.0
+  flutter_secure_storage: ^10.0.0
+  dart_jsonwebtoken: ^3.4.0
 
 dev_dependencies:
   flutter_test:
